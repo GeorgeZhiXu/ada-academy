@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duo-Verse English</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="confetti-canvas"></canvas>
+    <div id="floating-pet" class="floating-pet hidden"></div>
+
+    <!-- ========== SPLASH SCREEN (shows every time) ========== -->
+    <div id="splash" class="splash">
+        <div class="splash-inner">
+            <div class="splash-logo">Duo-Verse English</div>
+            <div class="splash-mascot">🌍</div>
+            <div class="splash-lang" id="splash-lang">
+                <p class="splash-lang-prompt">What language do you speak?<br>你说什么语言？</p>
+                <div class="splash-lang-btns">
+                    <button class="splash-lang-btn" onclick="setLang('en')">🇺🇸 English</button>
+                    <button class="splash-lang-btn" onclick="setLang('cn')">🇨🇳 中文</button>
+                </div>
+            </div>
+            <p class="splash-tagline" id="splash-tagline"></p>
+            <button class="splash-btn hidden" id="splash-enter">Enter →</button>
+        </div>
+    </div>
+
+    <!-- ========== INTRO / ONBOARDING ========== -->
+    <div id="onboarding" class="onboarding">
+        <!-- Step 1: Welcome -->
+        <div id="ob-welcome" class="ob-step active">
+            <div class="ob-logo">Duo-Verse English</div>
+            <p class="ob-tagline">你的英语宇宙，由你来创造！✨</p>
+            <div class="ob-mascot">🌍</div>
+            <button class="ob-btn pulse-btn" onclick="obNext('ob-name')">开始冒险！ Start Adventure →</button>
+        </div>
+        <!-- Step 2: Name -->
+        <div id="ob-name" class="ob-step">
+            <h2>你叫什么名字呀？👋</h2>
+            <p>What's your name?</p>
+            <input type="text" id="ob-name-input" class="ob-input" placeholder="在这里输入你的名字..." maxlength="20" autocomplete="off">
+            <button class="ob-btn" onclick="obSaveName()">下一步 Next →</button>
+        </div>
+        <!-- Step 3: Avatar -->
+        <div id="ob-avatar" class="ob-step">
+            <h2>选择你的角色！🧑‍🎤</h2>
+            <p>Pick your character!</p>
+            <div class="avatar-picker">
+                <div class="avatar-option" data-gender="girl" onclick="obPickAvatar(this)">
+                    <div class="avatar-big">👧</div>
+                    <span>女孩 Girl</span>
+                </div>
+                <div class="avatar-option" data-gender="boy" onclick="obPickAvatar(this)">
+                    <div class="avatar-big">👦</div>
+                    <span>男孩 Boy</span>
+                </div>
+            </div>
+            <div class="avatar-extras hidden" id="avatar-extras">
+                <h3>选一个肤色 Pick a style!</h3>
+                <div class="skin-picker" id="skin-picker"></div>
+                <button class="ob-btn" onclick="obFinish()">完成！Let's go! 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN APP (hidden until onboarding done) ========== -->
+    <div id="app" class="app hidden">
+        <header>
+            <div class="header-inner">
+                <h1 class="logo-text">Duo-Verse English</h1>
+            </div>
+            <div class="token-display" onclick="showSection('store')">
+                <span class="token-icon">🪙</span>
+                <span id="token-count">0</span>
+            </div>
+        </header>
+
+        <nav id="main-nav">
+            <button class="nav-btn active" data-section="home" onclick="showSection('home')">🏠 我的主页</button>
+            <button class="nav-btn" data-section="learn" onclick="showSection('learn')">📚 学英语</button>
+            <button class="nav-btn" data-section="quiz" onclick="showSection('quiz')">🎮 英语挑战</button>
+            <button class="nav-btn game-nav-btn" data-section="games" onclick="showSection('games')">🕹️ 小游戏</button>
+            <button class="nav-btn brain-nav-btn" data-section="brain" onclick="showSection('brain')">🧠 脑力</button>
+            <button class="nav-btn" data-section="sentences-workout" onclick="showSection('sentences-workout')">💬 句型</button>
+            <button class="nav-btn america-nav-btn hidden" id="america-nav-btn" data-section="america" onclick="showSection('america')">🇺🇸 美国</button>
+            <button class="nav-btn store-nav-btn" data-section="store" onclick="showSection('store')">🛍️ 商店</button>
+            <button class="nav-btn" data-section="settings" onclick="showSection('settings')">⚙️</button>
+        </nav>
+
+        <main>
+            <!-- ===== HOMEPAGE ===== -->
+            <section id="home" class="section active">
+                <div class="homepage">
+                    <!-- Deco particles float here -->
+                    <div class="hp-decos" id="hp-decos"></div>
+                    <!-- Character Display -->
+                    <div class="char-display" id="char-display"></div>
+                    <button class="dress-up-btn" onclick="showSection('dressup')">👗 打扮角色 Dress Up!</button>
+                    <h2 class="char-name" id="hp-name"></h2>
+                    <p class="hp-title" id="hp-title">新手冒险家</p>
+                    <div class="hp-level-bar">
+                        <span class="hp-level-badge" id="hp-level-badge">Lv.1</span>
+                        <div class="hp-xp-bar"><div class="hp-xp-fill" id="hp-xp-fill"></div></div>
+                        <span class="hp-xp-text" id="hp-xp-text">0/10</span>
+                    </div>
+                    <div class="hp-badges" id="hp-badges"></div>
+                    <div class="hp-stats-bar">
+                        <div class="hp-stat"><span class="hp-stat-num" id="hp-tokens">0</span><span class="hp-stat-label">🪙 代币</span></div>
+                        <div class="hp-stat"><span class="hp-stat-num" id="hp-items">0</span><span class="hp-stat-label">🎒 收藏</span></div>
+                        <div class="hp-stat"><span class="hp-stat-num" id="hp-streak">0</span><span class="hp-stat-label">🔥 连胜</span></div>
+                    </div>
+                    <div class="hp-actions">
+                        <div class="hp-action-card learn-card" onclick="showSection('learn')">
+                            <span class="hp-action-icon">📚</span>
+                            <h3>学英语</h3>
+                            <p>字母、单词、句子，从零开始！</p>
+                        </div>
+                        <div class="hp-action-card quiz-card" onclick="showSection('quiz')">
+                            <span class="hp-action-icon">🎮</span>
+                            <h3>英语挑战</h3>
+                            <p>答题赚代币，越战越强！</p>
+                        </div>
+                        <div class="hp-action-card game-card" onclick="showSection('games')">
+                            <span class="hp-action-icon">🕹️</span>
+                            <h3>小游戏</h3>
+                            <p>和朋友一起玩！超好玩～</p>
+                        </div>
+                        <div class="hp-action-card store-card-hp" onclick="showSection('store')">
+                            <span class="hp-action-icon">🛍️</span>
+                            <h3>商店</h3>
+                            <p>用代币买超酷的东西！</p>
+                        </div>
+                    </div>
+                    <button class="hp-leveltest-btn" onclick="showSection('leveltest')">📝 升级考试 Level Up Test →</button>
+                    <button class="hp-customize-btn" onclick="showSection('store')">✨ 装扮我的主页</button>
+                </div>
+            </section>
+
+            <!-- ===== LEARN HUB ===== -->
+            <section id="learn" class="section">
+                <h2>📚 学英语</h2>
+                <p class="section-desc">选一个你想学的！点卡片听发音哦～</p>
+                <div class="learn-tabs">
+                    <button class="learn-tab active" onclick="showLearnTab('alphabet', this)">🔤 字母</button>
+                    <button class="learn-tab" onclick="showLearnTab('numbers', this)">🔢 数字</button>
+                    <button class="learn-tab" onclick="showLearnTab('colors', this)">🎨 颜色</button>
+                    <button class="learn-tab" onclick="showLearnTab('animals', this)">🐾 动物</button>
+                    <button class="learn-tab" onclick="showLearnTab('food', this)">🍎 食物</button>
+                    <button class="learn-tab" onclick="showLearnTab('greetings', this)">👋 问候</button>
+                    <button class="learn-tab" onclick="showLearnTab('body', this)">🧍 身体</button>
+                    <button class="learn-tab" onclick="showLearnTab('sentences', this)">💬 句子</button>
+                    <button class="learn-tab" onclick="showLearnTab('compare', this)">🇺🇸 中美对比</button>
+                    <button class="learn-tab writing-tab" onclick="showLearnTab('writing', this)">✏️ 写字</button>
+                    <button class="learn-tab writing-tab" onclick="showLearnTab('spelling', this)">🔠 拼写</button>
+                    <button class="learn-tab writing-tab" onclick="showLearnTab('scramble', this)">🔀 拼拼乐</button>
+                </div>
+                <div id="learn-content"></div>
+            </section>
+
+            <!-- ===== QUIZ ===== -->
+            <section id="quiz" class="section">
+                <h2>🎮 挑战时间到！</h2>
+                <p class="section-desc">答对得代币🪙和经验值，敢不敢试试～</p>
+                <div class="quiz-level-display" id="quiz-level-display"></div>
+                <div class="quiz-container">
+                    <div class="quiz-category-select">
+                        <h3>选一个你最有信心的！😎</h3>
+                        <div class="quiz-options">
+                            <button class="quiz-type-btn" onclick="startQuiz('numbers')">🔢 数字</button>
+                            <button class="quiz-type-btn" onclick="startQuiz('colors')">🎨 颜色</button>
+                            <button class="quiz-type-btn" onclick="startQuiz('animals')">🐾 动物</button>
+                            <button class="quiz-type-btn" onclick="startQuiz('food')">🍎 食物</button>
+                            <button class="quiz-type-btn" onclick="startQuiz('body')">🧍 身体</button>
+                            <button class="quiz-type-btn" onclick="startQuiz('mixed')">🎯 终极混合</button>
+                        </div>
+                    </div>
+                    <div id="quiz-area" class="quiz-area hidden">
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+                            <span id="quiz-progress-text">1/10</span>
+                        </div>
+                        <div class="quiz-score">⭐ <span id="quiz-score">0</span> &nbsp;|&nbsp; 🪙 <span id="quiz-token-live">0</span></div>
+                        <div id="quiz-question" class="quiz-question"></div>
+                        <div id="quiz-choices" class="quiz-choices"></div>
+                        <div id="quiz-feedback" class="quiz-feedback hidden"></div>
+                        <button id="quiz-next" class="quiz-next-btn hidden" onclick="nextQuestion()">继续冲！→</button>
+                    </div>
+                    <div id="quiz-result" class="quiz-result hidden">
+                        <div class="result-icon" id="result-icon"></div>
+                        <h3 id="result-title"></h3>
+                        <p id="result-message"></p>
+                        <p class="result-score">⭐ <span id="final-score"></span>/<span id="total-questions"></span></p>
+                        <p class="result-bonus hidden" id="result-bonus"></p>
+                        <button class="restart-btn" onclick="showQuizSelect()">再来一局！💪</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== GAMES ===== -->
+            <section id="games" class="section">
+                <h2>🕹️ 小游戏乐园</h2>
+                <p class="section-desc">和朋友一起玩吧！可以两个人一起哦～ 🤝</p>
+                <div class="game-select" id="game-select">
+                    <div class="game-pick-card" onclick="startGame('tictactoe')">
+                        <span class="game-pick-icon">⭕❌</span>
+                        <h3>井字棋</h3>
+                        <p>Tic Tac Toe · 2人对战</p>
+                        <span class="game-tag">👫 双人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('memory')">
+                        <span class="game-pick-icon">🃏🃏</span>
+                        <h3>翻翻乐</h3>
+                        <p>Memory Match · 翻牌配对</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('rps')">
+                        <span class="game-pick-icon">✊✋✌️</span>
+                        <h3>石头剪刀布</h3>
+                        <p>Rock Paper Scissors · 2人</p>
+                        <span class="game-tag">👫 双人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('catch')">
+                        <span class="game-pick-icon">⭐🧺</span>
+                        <h3>接星星</h3>
+                        <p>Catch the Stars · 反应力</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('hangman')">
+                        <span class="game-pick-icon">🔤💀</span>
+                        <h3>猜单词</h3>
+                        <p>Hangman · 猜字母</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('simon')">
+                        <span class="game-pick-icon">🔴🟢🔵🟡</span>
+                        <h3>记忆闪灯</h3>
+                        <p>Simon Says · 记住顺序</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('whack')">
+                        <span class="game-pick-icon">🔨🐹</span>
+                        <h3>打地鼠</h3>
+                        <p>Whack-a-Mole · 反应力</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('connect4')">
+                        <span class="game-pick-icon">🔴🟡</span>
+                        <h3>四子棋</h3>
+                        <p>Connect Four · 2人对战</p>
+                        <span class="game-tag">👫 双人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('reaction')">
+                        <span class="game-pick-icon">⚡👆</span>
+                        <h3>反应测试</h3>
+                        <p>Reaction Time · 你有多快？</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('snake')">
+                        <span class="game-pick-icon">🐍🍎</span>
+                        <h3>贪吃蛇</h3>
+                        <p>Snake · 经典游戏</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('numguess')">
+                        <span class="game-pick-icon">🔢❓</span>
+                        <h3>猜数字</h3>
+                        <p>Number Guess · 1到100</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('colormatch')">
+                        <span class="game-pick-icon">🟥🔵</span>
+                        <h3>颜色陷阱</h3>
+                        <p>Color Match · 别被骗了</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('mathrace')">
+                        <span class="game-pick-icon">➕✖️</span>
+                        <h3>数学闪电</h3>
+                        <p>Math Race · 算得快</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('typing')">
+                        <span class="game-pick-icon">⌨️💨</span>
+                        <h3>打字高手</h3>
+                        <p>Typing Speed · 打字比赛</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('bubblepop')">
+                        <span class="game-pick-icon">🫧💥</span>
+                        <h3>泡泡大战</h3>
+                        <p>Bubble Pop · 点泡泡</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('dodge')">
+                        <span class="game-pick-icon">🏃💨</span>
+                        <h3>躲避大师</h3>
+                        <p>Dodge · 别被砸到</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('emoji2048')">
+                        <span class="game-pick-icon">2️⃣0️⃣</span>
+                        <h3>Emoji合成</h3>
+                        <p>2048 Emoji · 合并方块</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('wordbomb')">
+                        <span class="game-pick-icon">💣🔤</span>
+                        <h3>单词炸弹</h3>
+                        <p>Word Bomb · 快想单词</p>
+                        <span class="game-tag">👫 双人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('maze')">
+                        <span class="game-pick-icon">🏰🗝️</span>
+                        <h3>走迷宫</h3>
+                        <p>Maze · 找到出口</p>
+                        <span class="game-tag">👤 单人</span>
+                    </div>
+                    <div class="game-pick-card" onclick="startGame('pong')">
+                        <span class="game-pick-icon">🏓</span>
+                        <h3>弹球对战</h3>
+                        <p>Pong · 经典对打</p>
+                        <span class="game-tag">👫 双人</span>
+                    </div>
+                </div>
+                <div id="game-area" class="game-area hidden"></div>
+            </section>
+
+            <!-- ===== DRESS UP ===== -->
+            <section id="dressup" class="section">
+                <h2>👗 换装间 Dressing Room</h2>
+                <p class="section-desc">给你的角色换上酷酷的装扮！</p>
+                <div class="dressup-container">
+                    <div class="dressup-stage" id="dressup-stage"></div>
+                    <div class="dressup-wardrobe" id="dressup-wardrobe"></div>
+                </div>
+            </section>
+
+            <!-- ===== LEVEL TEST ===== -->
+            <section id="leveltest" class="section">
+                <h2>📝 升级考试</h2>
+                <p class="section-desc">通过考试才能升级！准备好了吗？</p>
+                <div id="leveltest-content" class="leveltest-content"></div>
+            </section>
+
+            <!-- ===== SENTENCE WORKOUT ===== -->
+            <section id="sentences-workout" class="section">
+                <h2>💬 句型训练 Sentence Workout</h2>
+                <p class="section-desc">学会用美式英语说话！看看中文和英语的区别～</p>
+                <div id="sw-content"></div>
+            </section>
+
+            <!-- ===== AMERICAN FACTS (unlocked at Lv10) ===== -->
+            <section id="america" class="section">
+                <h2>🇺🇸 美国趣事 Fun American Facts</h2>
+                <p class="section-desc">恭喜到达Lv.10！解锁美国文化和历史知识～ 学英语的同时了解美国！</p>
+                <div id="america-content"></div>
+            </section>
+
+            <!-- ===== BRAIN WORKOUT ===== -->
+            <section id="brain" class="section">
+                <h2>🧠 脑力训练 Brain Workout</h2>
+                <p class="section-desc">动动脑筋！猜谜语、听笑话、练思维～</p>
+                <div class="brain-tabs">
+                    <button class="brain-tab active" onclick="showBrainTab('riddles', this)">🤔 谜语 Riddles</button>
+                    <button class="brain-tab" onclick="showBrainTab('jokes', this)">😂 笑话 Jokes</button>
+                </div>
+                <div id="brain-content"></div>
+            </section>
+
+            <!-- ===== STORE ===== -->
+            <section id="store" class="section">
+                <h2>🛍️ Duo-Verse 商店</h2>
+                <p class="section-desc">赚代币，买好东西，装扮你的主页！</p>
+                <div class="store-wallet">
+                    <span class="wallet-icon">🪙</span>
+                    <span class="wallet-amount" id="store-token-count">0</span>
+                    <span class="wallet-label">代币</span>
+                </div>
+                <div id="store-grid" class="store-grid"></div>
+                <div class="my-collection-section">
+                    <h3>🎒 我的收藏</h3>
+                    <div id="my-collection"></div>
+                </div>
+            </section>
+
+            <!-- ===== SETTINGS ===== -->
+            <section id="settings" class="section">
+                <h2>⚙️ Settings</h2>
+                <div class="settings-container" id="settings-container"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p class="logo-text" style="font-size:1.2rem;background:linear-gradient(90deg,var(--primary),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Duo-Verse English</p>
+            <p>每天进步一点点！You got this! 💪</p>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+    <script src="app.js"></script>
+</body>
+</html>
