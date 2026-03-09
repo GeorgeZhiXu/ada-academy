@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debating Pro - AI Debate Partner</title>
+    <meta name="description" content="Practice debate with an AI opponent. Structured rounds, real-time scoring, and coaching feedback for all skill levels.">
+    <meta name="theme-color" content="#0A0A1A">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x26A1;</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ========== LOGIN / WELCOME BACK ========== -->
+    <div class="login-overlay" id="login-overlay">
+        <!-- New user signup -->
+        <div class="login-card" id="login-new">
+            <div class="login-logo">
+                <div class="logo-badge"><span class="logo-bolt">&#x26A1;</span></div>
+            </div>
+            <h1>Debating <span class="logo-pro">Pro</span></h1>
+            <p class="login-sub">Create your profile to get started</p>
+            <div class="login-field">
+                <label for="login-name">Your Name</label>
+                <input type="text" id="login-name" placeholder="Enter your name..." maxlength="20" autocomplete="off">
+            </div>
+            <div class="login-field">
+                <label>Pick an Avatar</label>
+                <div class="avatar-grid" id="avatar-grid">
+                    <button class="avatar-pick selected" data-avatar="&#x1F9D1;" onclick="pickAvatar(this)">&#x1F9D1;</button>
+                    <button class="avatar-pick" data-avatar="&#x1F468;" onclick="pickAvatar(this)">&#x1F468;</button>
+                    <button class="avatar-pick" data-avatar="&#x1F469;" onclick="pickAvatar(this)">&#x1F469;</button>
+                    <button class="avatar-pick" data-avatar="&#x1F9D4;" onclick="pickAvatar(this)">&#x1F9D4;</button>
+                    <button class="avatar-pick" data-avatar="&#x1F477;" onclick="pickAvatar(this)">&#x1F477;</button>
+                    <button class="avatar-pick" data-avatar="&#x1F9D1;&#x200D;&#x1F393;" onclick="pickAvatar(this)">&#x1F9D1;&#x200D;&#x1F393;</button>
+                    <button class="avatar-pick" data-avatar="&#x1F9D9;" onclick="pickAvatar(this)">&#x1F9D9;</button>
+                    <button class="avatar-pick" data-avatar="&#x1F916;" onclick="pickAvatar(this)">&#x1F916;</button>
+                </div>
+            </div>
+            <button class="login-btn" onclick="completeLogin()">Start Debating</button>
+        </div>
+        <!-- Returning user welcome back -->
+        <div class="login-card hidden" id="login-welcome">
+            <div class="wb-avatar" id="wb-avatar"></div>
+            <h1 class="wb-greeting" id="wb-greeting"></h1>
+            <p class="wb-sub" id="wb-sub"></p>
+            <div class="wb-stats">
+                <div class="wb-stat"><span class="wb-stat-num" id="wb-wins">0</span><span class="wb-stat-label">Wins</span></div>
+                <div class="wb-stat"><span class="wb-stat-num" id="wb-total">0</span><span class="wb-stat-label">Debates</span></div>
+                <div class="wb-stat"><span class="wb-stat-num" id="wb-streak">0</span><span class="wb-stat-label">Day Streak</span></div>
+                <div class="wb-stat"><span class="wb-stat-num" id="wb-rank"></span><span class="wb-stat-label">Rank</span></div>
+            </div>
+            <button class="login-btn" onclick="dismissWelcome()">Let's Go</button>
+            <button class="wb-switch" onclick="switchProfile()">Not you? Switch profile</button>
+        </div>
+    </div>
+
+    <canvas id="particles-canvas"></canvas>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a class="nav-logo" href="#" onclick="goHome(); return false;">
+                <span class="nav-logo-icon">&#x26A1;</span>
+                <span class="nav-logo-text">Debating <span class="logo-pro">Pro</span></span>
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a class="nav-link active" data-page="home" href="#" onclick="navigateTo('home'); return false;">Home</a>
+                <a class="nav-link" data-page="learn" href="#" onclick="navigateTo('learn'); return false;">Learn</a>
+                <a class="nav-link" data-page="games" href="#" onclick="navigateTo('games'); return false;">Games</a>
+                <a class="nav-link" data-page="live" href="#" onclick="navigateTo('live'); return false;">Live</a>
+                <a class="nav-link" data-page="drafts" href="#" onclick="navigateTo('drafts'); return false;">Drafts</a>
+                <a class="nav-link" data-page="history" href="#" onclick="navigateTo('history'); return false;">History</a>
+                <a class="nav-link" data-page="about" href="#" onclick="navigateTo('about'); return false;">About</a>
+            </div>
+            <div class="nav-profile" id="nav-profile" onclick="toggleSettings()">
+                <span class="nav-avatar" id="nav-avatar"></span>
+                <span class="nav-username" id="nav-username"></span>
+            </div>
+            <div class="nav-right">
+                <div class="nav-stats" id="nav-stats">
+                    <span class="stat-badge win-badge" title="Wins"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 7 8 7 8M18 9h1.5a2.5 2.5 0 000-5C17 4 17 8 17 8M12 18v4M8 22h8"/><path d="M5 9h14l-1.3 7.2a2 2 0 01-2 1.8H8.3a2 2 0 01-2-1.8L5 9z"/></svg> <span id="stat-wins">0</span></span>
+                    <span class="stat-badge total-badge" title="Total Debates"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> <span id="stat-total">0</span></span>
+                </div>
+                <button class="nav-settings-btn" id="settings-toggle" onclick="toggleSettings()" title="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                </button>
+                <button class="nav-hamburger" id="hamburger" onclick="toggleMobileNav()">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== SETTINGS PANEL ========== -->
+    <div class="settings-overlay" id="settings-overlay" onclick="toggleSettings()"></div>
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-header">
+            <h2>Settings</h2>
+            <button class="settings-close" onclick="toggleSettings()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="settings-body">
+            <div class="settings-group">
+                <h3>Appearance</h3>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Theme</span>
+                        <span class="setting-hint">Switch between dark and light mode</span>
+                    </div>
+                    <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">
+                        <span class="theme-icon-dark">&#x1F31C;</span>
+                        <span class="theme-icon-light">&#x2600;&#xFE0F;</span>
+                        <div class="theme-slider"></div>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Animations</span>
+                        <span class="setting-hint">Particle effects and transitions</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggle-animations" checked onchange="toggleAnimations()">
+                        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Sound Effects</span>
+                        <span class="setting-hint">Play sounds on actions</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggle-sound" onchange="toggleSound()">
+                        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>Debate</h3>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Default Difficulty</span>
+                        <span class="setting-hint">Pre-select your skill level</span>
+                    </div>
+                    <select class="setting-select" id="default-difficulty" onchange="setDefaultDifficulty(this.value)">
+                        <option value="">Ask every time</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Timer Mode</span>
+                        <span class="setting-hint">Add time pressure to your arguments</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggle-timer" onchange="toggleTimer()">
+                        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>Data</h3>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Your Stats</span>
+                        <span class="setting-hint" id="stats-summary">0 debates, 0 wins</span>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Clear All Data</span>
+                        <span class="setting-hint">Reset stats and history permanently</span>
+                    </div>
+                    <button class="setting-danger-btn" onclick="clearAllData()">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== HOME / SETUP SCREEN ========== -->
+    <div id="setup" class="screen active">
+        <div class="setup-container">
+            <div class="setup-logo">
+                <div class="logo-badge">
+                    <span class="logo-bolt">&#x26A1;</span>
+                </div>
+                <h1>Debating <span class="logo-pro">Pro</span></h1>
+                <p class="tagline" id="hero-tagline"></p>
+                <div class="tagline-bar">
+                    <span class="bar-dot"></span>
+                    <span class="bar-dot"></span>
+                    <span class="bar-dot"></span>
+                </div>
+                <div class="hero-features">
+                    <span class="hero-feat"><span class="hero-feat-icon">&#x1F916;</span> AI Opponent</span>
+                    <span class="hero-feat"><span class="hero-feat-icon">&#x1F4CA;</span> Live Scoring</span>
+                    <span class="hero-feat"><span class="hero-feat-icon">&#x1F399;&#xFE0F;</span> Voice Input</span>
+                    <span class="hero-feat"><span class="hero-feat-icon">&#x1F3AE;</span> 6 Game Modes</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Age Range -->
+            <div id="step-age" class="setup-step active">
+                <h2>How old are you?</h2>
+                <p class="step-desc">We'll match the debate style to your level.</p>
+                <div class="age-options">
+                    <button class="age-btn" data-age="8-10" onclick="pickAge(this)">
+                        <div class="card-glow"></div>
+                        <span class="age-emoji">&#x1F9D2;</span>
+                        <span class="age-label">8 - 10</span>
+                        <span class="age-sub">Kid Debater</span>
+                    </button>
+                    <button class="age-btn" data-age="11-13" onclick="pickAge(this)">
+                        <div class="card-glow"></div>
+                        <span class="age-emoji">&#x1F466;</span>
+                        <span class="age-label">11 - 13</span>
+                        <span class="age-sub">Junior Arguer</span>
+                    </button>
+                    <button class="age-btn" data-age="14-17" onclick="pickAge(this)">
+                        <div class="card-glow"></div>
+                        <span class="age-emoji">&#x1F9D1;</span>
+                        <span class="age-label">14 - 17</span>
+                        <span class="age-sub">Teen Thinker</span>
+                    </button>
+                    <button class="age-btn" data-age="18+" onclick="pickAge(this)">
+                        <div class="card-glow"></div>
+                        <span class="age-emoji">&#x1F9D1;&#x200D;&#x1F393;</span>
+                        <span class="age-label">18+</span>
+                        <span class="age-sub">Adult Debater</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Skill Level -->
+            <div id="step-skill" class="setup-step">
+                <h2>What's your experience?</h2>
+                <p class="step-desc">No wrong answer here!</p>
+                <div class="skill-options">
+                    <button class="skill-btn" data-skill="beginner" onclick="pickSkill(this)">
+                        <div class="skill-icon-wrap beginner-wrap"><span class="skill-icon">&#x1F331;</span></div>
+                        <div class="skill-text">
+                            <span class="skill-name">Beginner</span>
+                            <span class="skill-desc">New to debating. Simple topics + helpful hints.</span>
+                        </div>
+                        <span class="skill-arrow">&#x2192;</span>
+                    </button>
+                    <button class="skill-btn" data-skill="intermediate" onclick="pickSkill(this)">
+                        <div class="skill-icon-wrap inter-wrap"><span class="skill-icon">&#x1F525;</span></div>
+                        <div class="skill-text">
+                            <span class="skill-name">Intermediate</span>
+                            <span class="skill-desc">Can hold my own. Bring on some challenge!</span>
+                        </div>
+                        <span class="skill-arrow">&#x2192;</span>
+                    </button>
+                    <button class="skill-btn" data-skill="advanced" onclick="pickSkill(this)">
+                        <div class="skill-icon-wrap advanced-wrap"><span class="skill-icon">&#x26A1;</span></div>
+                        <div class="skill-text">
+                            <span class="skill-name">Advanced</span>
+                            <span class="skill-desc">Love tough arguments. Don't go easy on me!</span>
+                        </div>
+                        <span class="skill-arrow">&#x2192;</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Topic Selection -->
+            <div id="step-topic" class="setup-step">
+                <h2>Pick your battleground</h2>
+                <p class="step-desc">Choose something you feel strongly about!</p>
+                <div class="topic-grid" id="topic-grid"></div>
+                <div class="custom-topic-area">
+                    <div class="divider-line"><span>OR</span></div>
+                    <p>Type your own topic</p>
+                    <div class="custom-input-row">
+                        <input type="text" id="custom-topic" placeholder="e.g. 'Homework should be banned'" maxlength="100">
+                        <button class="custom-go-btn" onclick="useCustomTopic()">Go &#x2192;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Pick Your Side -->
+            <div id="step-side" class="setup-step">
+                <h2 id="side-topic-title"></h2>
+                <p class="step-desc">Which side do you want to argue?</p>
+                <div class="side-options">
+                    <button class="side-btn for-btn" onclick="pickSide('for')">
+                        <div class="side-glow for-glow"></div>
+                        <span class="side-icon">&#x1F44D;</span>
+                        <span class="side-label">FOR</span>
+                        <span class="side-sub">I agree with this!</span>
+                    </button>
+                    <button class="side-btn against-btn" onclick="pickSide('against')">
+                        <div class="side-glow against-glow"></div>
+                        <span class="side-icon">&#x1F44E;</span>
+                        <span class="side-label">AGAINST</span>
+                        <span class="side-sub">I disagree!</span>
+                    </button>
+                </div>
+            </div>
+            <div class="page-footer"><div class="page-footer-brand">&#x26A1; Debating <span class="logo-pro">Pro</span></div><div class="page-footer-copy">&copy; 2026 Debating Pro. All rights reserved.</div></div>
+        </div>
+    </div>
+
+    <!-- ========== LEARN SCREEN ========== -->
+    <div id="learn" class="screen">
+        <div class="page-container">
+            <div class="page-header">
+                <h1>The Debate Guidebook</h1>
+                <p class="page-desc">Everything you need to debate like a pro.</p>
+            </div>
+
+            <div class="guide-toc">
+                <h3>Chapters</h3>
+                <a href="#" onclick="scrollToGuide('g-what'); return false;">1. What is Debate?</a>
+                <a href="#" onclick="scrollToGuide('g-poe'); return false;">2. POE Structure</a>
+                <a href="#" onclick="scrollToGuide('g-evidence'); return false;">3. Evidence &amp; Examples</a>
+                <a href="#" onclick="scrollToGuide('g-clash'); return false;">4. Clash &amp; Rebuttal</a>
+                <a href="#" onclick="scrollToGuide('g-weighing'); return false;">5. Weighing &amp; Impact</a>
+                <a href="#" onclick="scrollToGuide('g-advanced'); return false;">6. Advanced Techniques</a>
+                <a href="#" onclick="scrollToGuide('g-mistakes'); return false;">7. Common Mistakes</a>
+            </div>
+
+            <div class="guide-chapter" id="g-what">
+                <h2>1. What is Debate?</h2>
+                <p>Debate is a structured argument between two sides about a topic. One side argues <strong>FOR</strong> (proposition) and the other argues <strong>AGAINST</strong> (opposition). The goal is not to shout louder &mdash; it's to make the <em>most logical, well-supported, and persuasive</em> case.</p>
+                <div class="guide-callout">
+                    <strong>Key principle:</strong> A good debater can argue either side convincingly. It's about skill, not personal belief.
+                </div>
+                <p>Debates have rounds. In the early rounds (constructive speeches), you present your arguments. In the later rounds (rebuttals), you respond to your opponent and summarize why your side wins. You never introduce new arguments in rebuttal rounds.</p>
+            </div>
+
+            <div class="guide-chapter" id="g-poe">
+                <h2>2. The POE Structure</h2>
+                <p>Every argument you make should follow <strong>POE</strong>:</p>
+                <div class="guide-steps">
+                    <div class="guide-step">
+                        <span class="guide-step-letter">P</span>
+                        <div>
+                            <h4>Point</h4>
+                            <p>State your argument in one clear sentence.</p>
+                            <div class="guide-example">"My argument is that school uniforms save families money."</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <span class="guide-step-letter">O</span>
+                        <div>
+                            <h4>Observation / Explanation</h4>
+                            <p>Explain <em>why</em> your point is true. What's the logic behind it?</p>
+                            <div class="guide-example">"This is because parents no longer need to buy expensive trendy clothes for their kids to fit in at school."</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <span class="guide-step-letter">E</span>
+                        <div>
+                            <h4>Evidence / Example</h4>
+                            <p>Give a concrete fact, statistic, or real-world example.</p>
+                            <div class="guide-example">"For example, a study in the Long Beach school district found families saved an average of $150 per year after uniforms were introduced."</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="guide-callout">
+                    <strong>Intermediate tip:</strong> Add a fourth step &mdash; <strong>Impact</strong>. Explain why your point matters in the big picture: "This is significant because it reduces financial stress on low-income families."
+                </div>
+            </div>
+
+            <div class="guide-chapter" id="g-evidence">
+                <h2>3. Evidence &amp; Examples</h2>
+                <p>Arguments without evidence are just opinions. Strong debaters back up every claim.</p>
+                <div class="guide-grid-2">
+                    <div>
+                        <h4>Strong evidence</h4>
+                        <ul>
+                            <li>Statistics and data ("Studies show 73% of...")</li>
+                            <li>Real-world examples ("In Japan, this policy led to...")</li>
+                            <li>Expert opinions ("According to Dr. Smith...")</li>
+                            <li>Historical precedent ("When this was tried in 2015...")</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Weak evidence</h4>
+                        <ul>
+                            <li>"Everyone knows..." (no source)</li>
+                            <li>"I feel like..." (personal opinion)</li>
+                            <li>"My friend said..." (anecdotal)</li>
+                            <li>"It's obvious that..." (assertion without proof)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-chapter" id="g-clash">
+                <h2>4. Clash &amp; Rebuttal</h2>
+                <p>Clash means directly engaging with your opponent's arguments &mdash; not just repeating your own. This is what separates beginners from skilled debaters.</p>
+                <div class="guide-steps">
+                    <div class="guide-step">
+                        <span class="guide-step-letter">1</span>
+                        <div>
+                            <h4>Identify their claim</h4>
+                            <div class="guide-example">"My opponent argued that homework improves test scores."</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <span class="guide-step-letter">2</span>
+                        <div>
+                            <h4>Attack the reasoning</h4>
+                            <div class="guide-example">"However, this assumes that more practice always means better results. In reality, studies show diminishing returns after 90 minutes of homework."</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <span class="guide-step-letter">3</span>
+                        <div>
+                            <h4>Provide your counter-evidence</h4>
+                            <div class="guide-example">"In fact, Finland assigns almost no homework and consistently ranks among the top education systems globally."</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="guide-callout">
+                    <strong>Never say:</strong> "That's wrong" without explaining why. Always give a <em>reason</em> their argument fails.
+                </div>
+            </div>
+
+            <div class="guide-chapter" id="g-weighing">
+                <h2>5. Weighing &amp; Impact</h2>
+                <p>In later rounds, don't just repeat arguments &mdash; <strong>weigh</strong> them. Explain why your side's impacts matter more than your opponent's.</p>
+                <div class="guide-callout">
+                    <strong>The weighing formula:</strong> "Even if my opponent is right about [their point], my argument about [your point] matters more because [reason: scope, severity, probability]."
+                </div>
+                <h4>Three ways to weigh:</h4>
+                <div class="guide-grid-3">
+                    <div class="guide-weigh-card">
+                        <h4>Scope</h4>
+                        <p>How many people does it affect? "My argument affects millions of families, while theirs only concerns a small group."</p>
+                    </div>
+                    <div class="guide-weigh-card">
+                        <h4>Severity</h4>
+                        <p>How serious is the impact? "We're talking about people's health vs. minor inconvenience."</p>
+                    </div>
+                    <div class="guide-weigh-card">
+                        <h4>Probability</h4>
+                        <p>How likely is the outcome? "My scenario is almost certain, while theirs is speculative."</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-chapter" id="g-advanced">
+                <h2>6. Advanced Techniques</h2>
+                <h4>Framing</h4>
+                <p>Tell the judge HOW to evaluate the debate: "Judge, you should weigh real-world evidence over theoretical arguments."</p>
+                <h4>Steel-Manning</h4>
+                <p>Present the strongest version of your opponent's argument before taking it apart. This shows you understand their position and still win: "The best version of their case is... but even then, it fails because..."</p>
+                <h4>Turning an Argument</h4>
+                <p>Show that your opponent's own argument actually helps YOUR side: "They say competition is good &mdash; I agree! And that's exactly why my policy creates healthier competition."</p>
+                <h4>No New Arguments in Rebuttal</h4>
+                <p>In rebuttal rounds, you can only respond to existing arguments and summarize. Introducing new points is against the rules and will lose you points.</p>
+            </div>
+
+            <div class="guide-chapter" id="g-mistakes">
+                <h2>7. Common Mistakes</h2>
+                <div class="guide-grid-2">
+                    <div>
+                        <h4>Don't do this</h4>
+                        <ul>
+                            <li>Making claims without evidence</li>
+                            <li>Ignoring your opponent's arguments</li>
+                            <li>Getting emotional or personal</li>
+                            <li>Introducing new arguments in rebuttal</li>
+                            <li>Repeating the same point 3 times</li>
+                            <li>Using "everyone knows" as evidence</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Do this instead</h4>
+                        <ul>
+                            <li>Back every claim with POE</li>
+                            <li>Directly clash with their points</li>
+                            <li>Stay calm, logical, and respectful</li>
+                            <li>Summarize and weigh in rebuttals</li>
+                            <li>Make 2-3 strong arguments, not 10 weak ones</li>
+                            <li>Cite specific examples and data</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer"><div class="page-footer-brand">&#x26A1; Debating <span class="logo-pro">Pro</span></div><div class="page-footer-copy">&copy; 2026 Debating Pro. All rights reserved.</div></div>
+    </div>
+
+    <!-- ========== LIVE DEBATE SCREEN ========== -->
+    <div id="live" class="screen">
+        <div class="page-container">
+            <div class="page-header">
+                <h1>Live Debate</h1>
+                <p class="page-desc">Debate a real human. Timed rounds. No AI.</p>
+            </div>
+
+            <!-- Lobby: Create or Join -->
+            <div id="live-lobby">
+                <div class="live-options">
+                    <div class="live-option-card">
+                        <h3>Create a Room</h3>
+                        <p>Pick a topic and invite someone to debate you.</p>
+                        <div class="login-field" style="margin:16px 0 0">
+                            <label>Debate Topic</label>
+                            <input type="text" id="live-topic" placeholder="e.g. 'Homework should be banned'" maxlength="100">
+                        </div>
+                        <button class="primary-btn" onclick="liveCreate()" style="width:100%;margin-top:12px">Create Room</button>
+                    </div>
+                    <div class="live-option-card">
+                        <h3>Join a Room</h3>
+                        <p>Enter the 6-letter code from your opponent.</p>
+                        <div class="login-field" style="margin:16px 0 0">
+                            <label>Room Code</label>
+                            <input type="text" id="live-code" placeholder="e.g. ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;text-align:center;font-size:1.3rem;font-weight:700">
+                        </div>
+                        <button class="primary-btn" onclick="liveJoin()" style="width:100%;margin-top:12px">Join Room</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waiting Room -->
+            <div id="live-waiting" class="hidden">
+                <div class="live-waiting-card">
+                    <h2>Waiting for opponent...</h2>
+                    <p>Share this code with your opponent:</p>
+                    <div class="live-room-code" id="live-room-code"></div>
+                    <p class="live-topic-display">Topic: <strong id="live-topic-display"></strong></p>
+                    <div class="live-players" id="live-players"></div>
+                    <div class="typing-indicator" style="margin:20px auto"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+                </div>
+            </div>
+
+            <!-- Side Assigned + Ready -->
+            <div id="live-ready" class="hidden">
+                <div class="live-waiting-card">
+                    <h2>Both players connected!</h2>
+                    <p>Topic: <strong id="live-ready-topic"></strong></p>
+                    <p class="live-side-assign">You are arguing: <span class="live-side-badge" id="live-my-side"></span></p>
+                    <div class="live-players" id="live-ready-players"></div>
+                    <button class="primary-btn" onclick="liveReady()" style="width:100%;margin-top:20px" id="live-ready-btn">I'm Ready</button>
+                    <p class="live-ready-status" id="live-ready-status"></p>
+                </div>
+            </div>
+
+            <!-- Live Debate Area -->
+            <div id="live-debate-area" class="hidden">
+                <div class="live-header">
+                    <div class="live-topic-bar">Topic: <strong id="live-debate-topic"></strong></div>
+                    <div class="debate-info-bar">
+                        <div class="debater-tag you-tag"><span id="live-p1-name"></span> <span class="tag-side" id="live-p1-side"></span></div>
+                        <div class="round-display"><span class="round-current" id="live-round">1</span><span class="round-sep">/</span><span class="round-total" id="live-max-round">3</span></div>
+                        <div class="debater-tag ai-tag"><span id="live-p2-name"></span> <span class="tag-side" id="live-p2-side"></span></div>
+                    </div>
+                </div>
+                <div class="live-timer" id="live-timer">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="live-timer-text">1:30</span>
+                </div>
+                <div class="live-turn-banner" id="live-turn-banner"></div>
+                <div class="debate-chat" id="live-chat" style="min-height:300px;max-height:400px"></div>
+                <div class="debate-input-area" id="live-input-area">
+                    <div class="input-row">
+                        <textarea id="live-input" placeholder="Make your argument..." rows="3" maxlength="1500"></textarea>
+                        <button class="send-btn" id="live-send" onclick="liveSendArg()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="live-disabled-msg hidden" id="live-disabled-msg">Waiting for opponent's argument...</div>
+            </div>
+
+            <div class="page-footer"><div class="page-footer-brand">&#x26A1; Debating <span class="logo-pro">Pro</span></div><div class="page-footer-copy">&copy; 2026 Debating Pro. All rights reserved.</div></div>
+        </div>
+    </div>
+
+    <!-- ========== GAMES SCREEN ========== -->
+    <div id="games" class="screen">
+        <div class="page-container">
+            <div class="page-header">
+                <h1>Debate Games</h1>
+                <p class="page-desc">Practice your skills with these quick challenges.</p>
+            </div>
+            <div class="games-grid">
+
+                <div class="game-card" onclick="startImpromptu()">
+                    <div class="game-card-icon">&#x26A1;</div>
+                    <div class="game-card-body">
+                        <h3>Impromptu Debate</h3>
+                        <p>Random topic. Random side. 60 seconds per round. No prep — just think fast.</p>
+                        <div class="game-card-tags">
+                            <span class="game-tag">2 rounds</span>
+                            <span class="game-tag">60s timer</span>
+                            <span class="game-tag">random</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card" onclick="startSpeedRound()">
+                    <div class="game-card-icon">&#x1F525;</div>
+                    <div class="game-card-body">
+                        <h3>Speed Round</h3>
+                        <p>30 seconds per argument. 4 rapid-fire rounds. Can you keep up under pressure?</p>
+                        <div class="game-card-tags">
+                            <span class="game-tag">4 rounds</span>
+                            <span class="game-tag">30s timer</span>
+                            <span class="game-tag">intense</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card" onclick="startRebuttalDrill()">
+                    <div class="game-card-icon">&#x1F6E1;&#xFE0F;</div>
+                    <div class="game-card-body">
+                        <h3>Rebuttal Drill</h3>
+                        <p>The AI gives you an argument. Your only job: tear it apart. Pure rebuttal practice.</p>
+                        <div class="game-card-tags">
+                            <span class="game-tag">3 rounds</span>
+                            <span class="game-tag">rebuttal only</span>
+                            <span class="game-tag">skill builder</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card" onclick="startDevilsAdvocate()">
+                    <div class="game-card-icon">&#x1F608;</div>
+                    <div class="game-card-body">
+                        <h3>Devil's Advocate</h3>
+                        <p>Pick the side you agree with — then get forced to argue the opposite. The ultimate test.</p>
+                        <div class="game-card-tags">
+                            <span class="game-tag">3 rounds</span>
+                            <span class="game-tag">flipped side</span>
+                            <span class="game-tag">advanced</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card" onclick="startPOEBuilder()">
+                    <div class="game-card-icon">&#x1F3D7;&#xFE0F;</div>
+                    <div class="game-card-body">
+                        <h3>POE Builder</h3>
+                        <p>Given a random topic, build the best Point-Observation-Evidence in 90 seconds. Scored on structure.</p>
+                        <div class="game-card-tags">
+                            <span class="game-tag">1 round</span>
+                            <span class="game-tag">90s timer</span>
+                            <span class="game-tag">beginner friendly</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-card" onclick="startCrossfire()">
+                    <div class="game-card-icon">&#x1F4A5;</div>
+                    <div class="game-card-body">
+                        <h3>Crossfire</h3>
+                        <p>You and the AI alternate single-sentence arguments. No long speeches — just quick jabs.</p>
+                        <div class="game-card-tags">
+                            <span class="game-tag">6 exchanges</span>
+                            <span class="game-tag">1 sentence each</span>
+                            <span class="game-tag">fast</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="page-footer"><div class="page-footer-brand">&#x26A1; Debating <span class="logo-pro">Pro</span></div><div class="page-footer-copy">&copy; 2026 Debating Pro. All rights reserved.</div></div>
+        </div>
+    </div>
+
+    <!-- ========== DRAFTS SCREEN ========== -->
+    <div id="drafts" class="screen">
+        <div class="page-container">
+            <div class="page-header">
+                <h1>Case Drafts</h1>
+                <p class="page-desc">Prepare your arguments before the debate.</p>
+            </div>
+            <div class="drafts-actions-top">
+                <button class="primary-btn" onclick="createDraft()">+ New Draft</button>
+            </div>
+            <div class="drafts-list" id="drafts-list"></div>
+            <div class="drafts-empty" id="drafts-empty">
+                <span class="empty-icon">&#x1F4DD;</span>
+                <h3>No drafts yet</h3>
+                <p>Create a draft to prepare your case before a debate. Organize your points, evidence, and rebuttals ahead of time.</p>
+                <button class="primary-btn" onclick="createDraft()">Create Your First Draft</button>
+            </div>
+            <div class="page-footer"><div class="page-footer-brand">&#x26A1; Debating <span class="logo-pro">Pro</span></div><div class="page-footer-copy">&copy; 2026 Debating Pro. All rights reserved.</div></div>
+        </div>
+    </div>
+
+    <!-- ========== DRAFT EDITOR (overlay) ========== -->
+    <div class="draft-editor-overlay hidden" id="draft-editor-overlay">
+        <div class="draft-editor">
+            <div class="draft-editor-header">
+                <input type="text" id="draft-title" placeholder="Draft title (e.g. 'Homework Ban - FOR')" maxlength="60">
+                <button class="draft-close-btn" onclick="closeDraftEditor()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="draft-sections">
+                <div class="draft-section">
+                    <h4>Opening Argument (POE)</h4>
+                    <textarea id="draft-opening" rows="5" placeholder="POINT: My argument is that...&#10;OBSERVATION: This is because...&#10;EVIDENCE: For example..."></textarea>
+                </div>
+                <div class="draft-section">
+                    <h4>Key Evidence &amp; Facts</h4>
+                    <textarea id="draft-evidence" rows="4" placeholder="List your statistics, examples, and sources here..."></textarea>
+                </div>
+                <div class="draft-section">
+                    <h4>Predicted Opponent Arguments</h4>
+                    <textarea id="draft-opponent" rows="4" placeholder="What will the other side say? How will you counter it?"></textarea>
+                </div>
+                <div class="draft-section">
+                    <h4>Closing / Rebuttal Notes</h4>
+                    <textarea id="draft-closing" rows="4" placeholder="Summary of your strongest points. Weighing and impact..."></textarea>
+                </div>
+            </div>
+            <div class="draft-editor-footer">
+                <button class="action-btn rematch-btn" onclick="deleteDraft()">Delete</button>
+                <button class="action-btn new-btn" onclick="saveDraft()">Save Draft</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== HISTORY SCREEN ========== -->
+    <div id="history" class="screen">
+        <div class="page-container">
+            <div class="page-header">
+                <h1>Debate History</h1>
+                <p class="page-desc">Your past battles and how you performed.</p>
+            </div>
+            <div class="history-stats-row" id="history-stats-row"></div>
+            <div class="history-list" id="history-list"></div>
+            <div class="history-empty" id="history-empty">
+                <span class="empty-icon">&#x1F4AD;</span>
+                <h3>No debates yet</h3>
+                <p>Start your first debate and your history will show up here.</p>
+                <button class="primary-btn" onclick="navigateTo('home')">Start Debating</button>
+            </div>
+            <div class="page-footer"><div class="page-footer-brand">&#x26A1; Debating <span class="logo-pro">Pro</span></div><div class="page-footer-copy">&copy; 2026 Debating Pro. All rights reserved.</div></div>
+        </div>
+    </div>
+
+    <!-- ========== ABOUT SCREEN ========== -->
+    <div id="about" class="screen">
+        <div class="page-container about-page">
+
+            <!-- Hero Mission -->
+            <div class="about-hero">
+                <div class="about-hero-badge">
+                    <span>&#x26A1;</span>
+                </div>
+                <h1>About Debating <span class="logo-pro">Pro</span></h1>
+                <p class="about-hero-sub">The platform that turns everyday thinkers into confident, sharp debaters.</p>
+            </div>
+
+            <!-- Mission Statement -->
+            <div class="about-mission-card">
+                <h2>Our Mission</h2>
+                <p class="mission-lead">We believe every person deserves the ability to express their ideas clearly, defend their opinions with confidence, and engage in respectful disagreement.</p>
+                <div class="mission-points">
+                    <div class="mission-point">
+                        <span class="mission-num">01</span>
+                        <div>
+                            <h4>Build Critical Thinkers</h4>
+                            <p>Debating isn't about winning arguments &mdash; it's about learning to think from multiple perspectives, evaluate evidence, and form well-reasoned opinions. We train your brain to question assumptions and consider the bigger picture.</p>
+                        </div>
+                    </div>
+                    <div class="mission-point">
+                        <span class="mission-num">02</span>
+                        <div>
+                            <h4>Make Practice Accessible</h4>
+                            <p>You shouldn't need a debate club, a partner, or a coach to practice. Debating Pro gives you a tireless AI opponent available 24/7, adapted to your age and experience level, so you can improve on your own schedule.</p>
+                        </div>
+                    </div>
+                    <div class="mission-point">
+                        <span class="mission-num">03</span>
+                        <div>
+                            <h4>Grow Confidence Through Feedback</h4>
+                            <p>Every debate ends with a detailed breakdown of your performance &mdash; clarity, evidence, persuasion, and rebuttal &mdash; plus actionable coaching tips. You'll see yourself improve debate by debate.</p>
+                        </div>
+                    </div>
+                    <div class="mission-point">
+                        <span class="mission-num">04</span>
+                        <div>
+                            <h4>Serve Every Age &amp; Level</h4>
+                            <p>Whether you're an 8-year-old learning to form opinions or an adult sharpening rhetorical skills, our adaptive difficulty system meets you where you are and pushes you forward.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="about-section">
+                <h2 class="about-section-title">How It Works</h2>
+                <div class="how-steps">
+                    <div class="how-step">
+                        <div class="how-step-num">1</div>
+                        <h4>Set Your Profile</h4>
+                        <p>Select your age range and experience level. We'll tailor everything &mdash; topics, AI difficulty, round count, and hints &mdash; to match.</p>
+                    </div>
+                    <div class="how-step-arrow">&#x2192;</div>
+                    <div class="how-step">
+                        <div class="how-step-num">2</div>
+                        <h4>Choose a Topic &amp; Side</h4>
+                        <p>Pick from curated debate topics or type your own. Then decide: are you arguing FOR or AGAINST?</p>
+                    </div>
+                    <div class="how-step-arrow">&#x2192;</div>
+                    <div class="how-step">
+                        <div class="how-step-num">3</div>
+                        <h4>Debate the AI</h4>
+                        <p>Take turns making arguments. Type or use voice input. Listen to responses read aloud. The AI adapts to your level in real time.</p>
+                    </div>
+                    <div class="how-step-arrow">&#x2192;</div>
+                    <div class="how-step">
+                        <div class="how-step-num">4</div>
+                        <h4>Get Your Scorecard</h4>
+                        <p>Receive a detailed breakdown across four categories with personalized coaching feedback to improve next time.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scoring -->
+            <div class="about-section">
+                <h2 class="about-section-title">How You're Scored</h2>
+                <div class="scoring-grid">
+                    <div class="scoring-card">
+                        <div class="scoring-icon" style="background:rgba(6,214,160,0.12);color:var(--neon-cyan)">&#x1F4DD;</div>
+                        <h4>Clarity</h4>
+                        <p>Are your arguments well-structured with complete sentences? Do you stay focused on one idea at a time?</p>
+                    </div>
+                    <div class="scoring-card">
+                        <div class="scoring-icon" style="background:rgba(124,58,237,0.12);color:var(--primary)">&#x1F4DA;</div>
+                        <h4>Evidence</h4>
+                        <p>Do you back up claims with examples, facts, or references? Using "for example" and "research shows" boosts this score.</p>
+                    </div>
+                    <div class="scoring-card">
+                        <div class="scoring-icon" style="background:rgba(255,190,11,0.12);color:var(--neon-yellow)">&#x1F525;</div>
+                        <h4>Persuasion</h4>
+                        <p>Is your language confident and assertive? Words like "clearly," "must," and "therefore" signal strong conviction.</p>
+                    </div>
+                    <div class="scoring-card">
+                        <div class="scoring-icon" style="background:rgba(255,0,110,0.12);color:var(--neon-pink)">&#x2694;&#xFE0F;</div>
+                        <h4>Rebuttal</h4>
+                        <p>Do you engage with the AI's arguments? Addressing opposing points with "however" or "while you said X" shows strong debate skills.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skill Levels -->
+            <div class="about-section">
+                <h2 class="about-section-title">Skill Levels</h2>
+                <div class="levels-table">
+                    <div class="level-row level-header">
+                        <span>Level</span><span>Rounds</span><span>AI Style</span><span>Hints</span><span>Char Limit</span>
+                    </div>
+                    <div class="level-row">
+                        <span class="level-name"><span class="level-dot" style="background:var(--neon-cyan)"></span>Beginner</span>
+                        <span>3</span><span>Friendly &amp; simple</span><span>Yes</span><span>500</span>
+                    </div>
+                    <div class="level-row">
+                        <span class="level-name"><span class="level-dot" style="background:var(--neon-orange)"></span>Intermediate</span>
+                        <span>4</span><span>Balanced &amp; challenging</span><span>Yes</span><span>1,000</span>
+                    </div>
+                    <div class="level-row">
+                        <span class="level-name"><span class="level-dot" style="background:var(--primary)"></span>Advanced</span>
+                        <span>5</span><span>Rigorous &amp; analytical</span><span>No</span><span>2,000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="about-section">
+                <h2 class="about-section-title">Features</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <span class="feature-icon">&#x1F399;&#xFE0F;</span>
+                        <div>
+                            <h4>Voice Input</h4>
+                            <p>Speak your arguments using your microphone &mdash; no typing required.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">&#x1F50A;</span>
+                        <div>
+                            <h4>Listen to Responses</h4>
+                            <p>Tap the speaker icon on any message to hear it read aloud.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">&#x23F1;&#xFE0F;</span>
+                        <div>
+                            <h4>Timer Mode</h4>
+                            <p>Enable a 2-minute countdown to practice arguing under pressure.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">&#x1F4CA;</span>
+                        <div>
+                            <h4>History &amp; Stats</h4>
+                            <p>Track every debate you've had with win rate, average score, and detailed results.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">&#x1F3A8;</span>
+                        <div>
+                            <h4>Dark &amp; Light Themes</h4>
+                            <p>Switch between dark and light mode to suit your preference.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">&#x270D;&#xFE0F;</span>
+                        <div>
+                            <h4>Custom Topics</h4>
+                            <p>Don't see your topic? Type in anything you want to debate about.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="about-section">
+                <h2 class="about-section-title">FAQ</h2>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>Is this free to use?</summary>
+                        <p>Debating Pro is free for a full year. No credit card, no hidden fees. Your data is stored locally on your device.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Does it use a real AI like ChatGPT?</summary>
+                        <p>The AI opponent uses a built-in response engine that adapts to your skill level. It runs entirely in your browser &mdash; no internet connection or API key needed.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>How is my score calculated?</summary>
+                        <p>Your arguments are analyzed for clarity (structure and length), evidence (use of examples and data), persuasion (confident language), and rebuttal (engaging with the AI's points). Each category is scored out of 10.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Can I use this for school or practice?</summary>
+                        <p>Absolutely. Debating Pro is designed for students, debate club members, public speaking learners, and anyone who wants to sharpen their argumentation skills.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Is my data private?</summary>
+                        <p>All your data (settings, history, stats) is stored in your browser's local storage. Nothing is sent to any server. Clearing your browser data will reset everything.</p>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="about-section">
+                <h2 class="about-section-title">Send Us Feedback</h2>
+                <div class="about-feedback-card">
+                    <p class="about-feedback-desc">Got ideas, bugs, or suggestions? Let us know how to make Debating Pro better.</p>
+                    <div class="about-feedback-form">
+                        <div class="about-feedback-type">
+                            <button class="feedback-type-btn selected" data-type="suggestion" onclick="pickFeedbackType(this)">&#x1F4A1; Suggestion</button>
+                            <button class="feedback-type-btn" data-type="bug" onclick="pickFeedbackType(this)">&#x1F41B; Bug Report</button>
+                            <button class="feedback-type-btn" data-type="praise" onclick="pickFeedbackType(this)">&#x2B50; Praise</button>
+                        </div>
+                        <textarea id="about-feedback-text" rows="4" placeholder="Tell us what you think..." maxlength="500"></textarea>
+                        <div class="about-feedback-bottom">
+                            <span class="about-feedback-count"><span id="about-feedback-count">0</span>/500</span>
+                            <button class="primary-btn" onclick="submitAboutFeedback()">Send Feedback</button>
+                        </div>
+                    </div>
+                    <div class="about-feedback-sent hidden" id="about-feedback-sent">
+                        <span>&#x2705;</span>
+                        <h4>Thanks for your feedback!</h4>
+                        <p>We read every submission and use it to improve Debating Pro.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="about-footer">
+                <div class="about-footer-brand">
+                    <span class="footer-logo-icon">&#x26A1;</span>
+                    <span class="footer-logo-text">Debating <span class="logo-pro">Pro</span></span>
+                </div>
+                <p class="about-footer-copy">Built to make you a better thinker, speaker, and debater.</p>
+                <p class="about-footer-small" id="admin-trigger" onclick="adminTap()">&copy; 2026 Debating Pro. All rights reserved.</p>
+            </div>
+
+            <!-- Hidden Admin Panel -->
+            <div class="admin-panel hidden" id="admin-panel">
+                <div class="admin-header">
+                    <h2>Admin — User Feedback</h2>
+                    <button class="setting-danger-btn" onclick="clearFeedback()">Clear All</button>
+                </div>
+                <div class="admin-stats" id="admin-stats"></div>
+                <div class="admin-list" id="admin-list"></div>
+                <div class="admin-empty hidden" id="admin-empty">No feedback yet.</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========== DEBATE SCREEN ========== -->
+    <div id="debate" class="screen">
+        <div class="debate-header">
+            <div class="debate-header-top">
+                <button class="debate-back-btn" onclick="confirmLeaveDebate()" title="Leave debate">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div class="debate-brand">&#x26A1; Debating <span class="logo-pro">Pro</span></div>
+                <div class="timer-display hidden" id="timer-display">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="timer-text">2:00</span>
+                </div>
+            </div>
+            <div class="debate-topic-bar">
+                <span class="debate-topic-label">TOPIC</span>
+                <span class="debate-topic-text" id="debate-topic-text"></span>
+            </div>
+            <div class="debate-info-bar">
+                <div class="debater-tag you-tag">
+                    <span class="tag-avatar">&#x1F9D1;</span>
+                    <span>You</span>
+                    <span class="tag-side" id="your-side-label">FOR</span>
+                </div>
+                <div class="round-display">
+                    <span class="round-current" id="round-num">1</span>
+                    <span class="round-sep">/</span>
+                    <span class="round-total" id="total-rounds">3</span>
+                </div>
+                <div class="debater-tag ai-tag">
+                    <span class="tag-avatar">&#x1F916;</span>
+                    <span>AI</span>
+                    <span class="tag-side" id="ai-side-label">AGAINST</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="debate-chat" id="debate-chat"></div>
+
+        <div class="debate-input-area" id="debate-input-area">
+            <div class="fix-bar hidden" id="fix-bar"></div>
+            <div class="hint-bar" id="hint-bar"></div>
+            <div class="input-row">
+                <textarea id="debate-input" placeholder="Make your argument..." rows="4" maxlength="2000"></textarea>
+                <div class="input-controls">
+                    <button class="voice-btn" id="voice-btn" onclick="toggleVoiceInput()" title="Voice input">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    </button>
+                    <button class="send-btn" id="send-btn" onclick="submitArgument()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="input-bottom-row">
+                <span class="voice-hint" id="voice-hint">Hold mic to speak</span>
+                <span class="char-count"><span id="char-count">0</span>/<span id="char-limit-display">500</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== RESULTS SCREEN ========== -->
+    <div id="results" class="screen">
+        <div class="results-container">
+            <h1 class="results-title">Debate Complete!</h1>
+            <div class="results-card" id="results-card"></div>
+            <div class="score-breakdown" id="score-breakdown"></div>
+            <div class="feedback-section" id="feedback-section"></div>
+            <!-- Feedback Widget -->
+            <div class="feedback-widget" id="feedback-widget">
+                <h3>How was this debate?</h3>
+                <p class="feedback-prompt">Your feedback helps us improve.</p>
+                <div class="feedback-faces" id="feedback-faces">
+                    <button class="face-btn" data-rating="1" onclick="submitFeedback(1, this)" title="Terrible">
+                        <span class="face-emoji">&#x1F620;</span>
+                        <span class="face-label">Terrible</span>
+                    </button>
+                    <button class="face-btn" data-rating="2" onclick="submitFeedback(2, this)" title="Bad">
+                        <span class="face-emoji">&#x1F61E;</span>
+                        <span class="face-label">Bad</span>
+                    </button>
+                    <button class="face-btn" data-rating="3" onclick="submitFeedback(3, this)" title="Okay">
+                        <span class="face-emoji">&#x1F610;</span>
+                        <span class="face-label">Okay</span>
+                    </button>
+                    <button class="face-btn" data-rating="4" onclick="submitFeedback(4, this)" title="Good">
+                        <span class="face-emoji">&#x1F60A;</span>
+                        <span class="face-label">Good</span>
+                    </button>
+                    <button class="face-btn" data-rating="5" onclick="submitFeedback(5, this)" title="Amazing">
+                        <span class="face-emoji">&#x1F929;</span>
+                        <span class="face-label">Amazing</span>
+                    </button>
+                </div>
+                <div class="feedback-thankyou hidden" id="feedback-thankyou">
+                    <span class="thankyou-check">&#x2714;&#xFE0F;</span>
+                    <span>Thanks for your feedback!</span>
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button class="action-btn rematch-btn" onclick="rematch()">&#x1F504; Rematch</button>
+                <button class="action-btn new-btn" onclick="newDebate()">&#x26A1; New Debate</button>
+                <button class="action-btn history-btn" onclick="navigateTo('history')">&#x1F4CA; View History</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== CONFIRM DIALOG ========== -->
+    <div class="confirm-overlay hidden" id="confirm-overlay">
+        <div class="confirm-dialog">
+            <h3 id="confirm-title">Leave Debate?</h3>
+            <p id="confirm-msg">Your progress in this debate will be lost.</p>
+            <div class="confirm-actions">
+                <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+                <button class="confirm-ok" id="confirm-ok">Leave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== TOAST ========== -->
+    <div class="toast hidden" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
