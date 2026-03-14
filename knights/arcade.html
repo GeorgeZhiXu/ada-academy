@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>War of the Knights – ARCADE RUSH</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Arial Black', sans-serif; background: black; }
+        #ui { position:absolute;top:20px;left:20px;color:white;text-shadow:2px 2px 0 red;z-index:100;font-size:24px; }
+        #health-bar { width:300px;height:30px;background:#333;border:3px solid gold; }
+        #health-fill { width:100%;height:100%;background:linear-gradient(90deg,red,orange); }
+        #combo { color:yellow;font-size:32px; }
+        #score { color:cyan; }
+        #wave { color:magenta; }
+        #crosshair { position:absolute;top:50%;left:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:150; }
+        #special-cooldown { position:absolute;bottom:30px;right:30px;width:80px;height:80px;border:4px solid #ffaa00;border-radius:50%;background:rgba(0,0,0,0.6);color:white;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold; }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div>❤️ <span id="health">100</span></div>
+        <div id="health-bar"><div id="health-fill"></div></div>
+        <div>⚡ <span id="combo">0</span>x Combo</div>
+        <div>🏆 <span id="score">0</span></div>
+        <div>🌊 Wave <span id="wave">1</span></div>
+    </div>
+    <div id="crosshair"></div>
+    <div id="special-cooldown">⚡</div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111122);
+        const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+        camera.position.set(0,1.7,10);
+        const renderer = new THREE.WebGLRenderer({ antialias:true });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new PointerLockControls(camera, document.body);
+        scene.add(controls.getObject());
+
+        const healthSpan=document.getElementById('health'), healthFill=document.getElementById('health-fill');
+        const comboSpan=document.getElementById('combo'), scoreSpan=document.getElementById('score');
+        const waveSpan=document.getElementById('wave'), specialDiv=document.getElementById('special-cooldown');
+
+        // Lighting
+        scene.add(new THREE.AmbientLight(0x404060));
+        const light=new THREE.DirectionalLight(0xffeedd,1);light.position.set(5,10,7);light.castShadow=true;light.shadow.mapSize.set(1024,1024);scene.add(light);
+
+        // Neon grid
+        scene.add(new THREE.GridHelper(60,20,0xff00ff,0x00ffff));
+
+        // Neon pillars
+        const pillarMat=new THREE.MeshStandardMaterial({color:0x00ffff,emissive:0x004444});
+        for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;const p=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,5),pillarMat);p.position.set(Math.cos(a)*25,2.5,Math.sin(a)*25);p.castShadow=true;scene.add(p);}
+
+        // Player
+        const playerGroup=new THREE.Group();
+        const core=new THREE.Mesh(new THREE.SphereGeometry(0.8),new THREE.MeshStandardMaterial({color:0x3399ff,emissive:0x113366}));core.castShadow=true;playerGroup.add(core);
+        const sword=new THREE.Mesh(new THREE.BoxGeometry(0.2,1.5,0.2),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x666666}));sword.position.set(1,0.5,0);sword.rotation.z=-0.2;sword.castShadow=true;playerGroup.add(sword);
+        const shield=new THREE.Mesh(new THREE.BoxGeometry(0.8,1,0.2),new THREE.MeshStandardMaterial({color:0xffaa00,emissive:0x442200}));shield.position.set(-0.8,0.5,0);shield.rotation.y=0.2;shield.castShadow=true;playerGroup.add(shield);
+        playerGroup.position.set(0,1,0);scene.add(playerGroup);
+
+        // Enemies
+        const enemies=[];
+        const enemyGeom=new THREE.ConeGeometry(0.8,1.5,6);
+        const enemyBaseMat=new THREE.MeshStandardMaterial({color:0xff3366,emissive:0x330000});
+
+        // State
+        let health=100,maxHealth=100,score=0,combo=0,comboMult=1,wave=1;
+        let enemiesThisWave=5,enemiesSpawned=0,enemiesKilled=0;
+        let specialReady=true,specialCooldown=0;
+        const SPECIAL_CD=5;
+        let comboTimer=0;
+
+        const ks={w:false,a:false,s:false,d:false};
+        document.addEventListener('keydown',e=>{
+            if(e.code==='KeyW')ks.w=true;if(e.code==='KeyS')ks.s=true;
+            if(e.code==='KeyA')ks.a=true;if(e.code==='KeyD')ks.d=true;
+            if(e.code==='Escape')controls.unlock();
+            if(e.code==='Space'){e.preventDefault();if(specialReady)useSpecial();}
+            if(e.code==='KeyR')location.reload();
+        });
+        document.addEventListener('keyup',e=>{
+            if(e.code==='KeyW')ks.w=false;if(e.code==='KeyS')ks.s=false;
+            if(e.code==='KeyA')ks.a=false;if(e.code==='KeyD')ks.d=false;
+        });
+        let atkDown=false;
+        document.addEventListener('mousedown',e=>{if(e.button===0&&controls.isLocked)atkDown=true;});
+        document.addEventListener('mouseup',e=>{if(e.button===0)atkDown=false;});
+        renderer.domElement.addEventListener('click',()=>controls.lock());
+
+        function spawnEnemy(){
+            if(enemiesSpawned>=enemiesThisWave)return;
+            const a=Math.random()*Math.PI*2,r=20+Math.random()*5;
+            const e=new THREE.Mesh(enemyGeom,enemyBaseMat.clone());
+            e.position.set(Math.cos(a)*r,0.75,Math.sin(a)*r);
+            e.castShadow=true;e.userData={hp:2+wave,speed:3+wave*0.3};
+            scene.add(e);enemies.push(e);enemiesSpawned++;
+        }
+
+        function startWave(){
+            enemiesSpawned=0;enemiesKilled=0;enemiesThisWave=5+wave*3;
+            for(let i=0;i<Math.min(5,enemiesThisWave);i++)spawnEnemy();
+        }
+
+        function useSpecial(){
+            if(!specialReady)return;
+            specialReady=false;specialCooldown=SPECIAL_CD;
+            specialDiv.style.borderColor='#666';
+            const pp=playerGroup.position.clone();
+            // Flash effect
+            scene.background=new THREE.Color(0xffffff);
+            setTimeout(()=>scene.background=new THREE.Color(0x111122),80);
+            for(let i=enemies.length-1;i>=0;i--){
+                const e=enemies[i];
+                if(pp.distanceTo(e.position)<12){
+                    e.material.color.setHex(0xffffff);e.material.emissive.setHex(0xffffff);
+                    setTimeout(()=>{scene.remove(e);},80);
+                    enemies.splice(i,1);
+                    combo++;comboMult=1+combo*0.2;score+=100*comboMult;enemiesKilled++;
+                }
+            }
+            updateUI();
+        }
+
+        function attack(){
+            const pp=playerGroup.position.clone();
+            const fwd=new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+            for(let i=enemies.length-1;i>=0;i--){
+                const e=enemies[i];
+                const toE=new THREE.Vector3().subVectors(e.position,pp);
+                const dist=toE.length();
+                if(dist<4.5&&fwd.dot(toE.normalize())>0.3){
+                    e.userData.hp--;
+                    e.material.color.setHex(0xffffff);e.material.emissive.setHex(0x666666);
+                    setTimeout(()=>{e.material.color.setHex(0xff3366);e.material.emissive.setHex(0x330000);},100);
+                    // Knockback
+                    const kb=toE.normalize().multiplyScalar(3);
+                    e.position.add(kb);
+                    if(e.userData.hp<=0){
+                        scene.remove(e);enemies.splice(i,1);
+                        combo++;comboMult=1+combo*0.2;score+=50*comboMult;enemiesKilled++;
+                    }
+                    break; // only hit first enemy
+                }
+            }
+            sword.rotation.z=-1.2;setTimeout(()=>sword.rotation.z=-0.2,100);
+            camera.position.x+=(Math.random()-.5)*.15;camera.position.z+=(Math.random()-.5)*.15;
+            updateUI();
+        }
+
+        function updateUI(){
+            healthSpan.textContent=Math.max(0,Math.round(health));
+            healthFill.style.width=(health/maxHealth*100)+'%';
+            comboSpan.textContent=combo;scoreSpan.textContent=Math.floor(score);waveSpan.textContent=wave;
+        }
+
+        let lt=performance.now()/1000,spawnT=0;
+        function loop(){
+            const now=performance.now()/1000,dt=Math.min(0.1,now-lt);lt=now;
+            if(!controls.isLocked){renderer.render(scene,camera);requestAnimationFrame(loop);return;}
+
+            // Movement
+            if(ks.w)controls.moveForward(10*dt);
+            if(ks.s)controls.moveForward(-10*dt);
+            if(ks.a)controls.moveRight(-10*dt);
+            if(ks.d)controls.moveRight(10*dt);
+            controls.getObject().position.y=1.7; // lock height
+
+            // Attack
+            if(atkDown){attack();atkDown=false;}
+
+            // Player sync
+            playerGroup.position.copy(controls.getObject().position);
+            playerGroup.position.y=1;
+            playerGroup.rotation.y=camera.rotation.y;
+
+            // Spawn
+            spawnT+=dt;
+            if(spawnT>0.4&&enemiesSpawned<enemiesThisWave){spawnT=0;spawnEnemy();}
+
+            // Enemy AI
+            const pp=playerGroup.position.clone();
+            for(const e of enemies){
+                const dir=new THREE.Vector3().subVectors(pp,e.position).normalize();
+                e.position.add(dir.multiplyScalar(e.userData.speed*dt));
+                e.lookAt(pp);
+                // Enemy attacks player
+                if(pp.distanceTo(e.position)<2){
+                    if(Math.random()<dt*2) health-=e.userData.speed*0.8;
+                    if(health<=0){health=0;controls.unlock();alert(`GAME OVER! Score: ${Math.floor(score)} | Wave: ${wave}`);location.reload();}
+                }
+            }
+
+            // Combo decay
+            comboTimer+=dt;
+            if(comboTimer>2){combo=Math.max(0,combo-1);comboMult=1+combo*0.2;comboTimer=0;}
+
+            // Wave check
+            if(enemiesKilled>=enemiesThisWave){wave++;startWave();}
+
+            // Special CD
+            if(!specialReady){specialCooldown-=dt;specialDiv.textContent=Math.ceil(specialCooldown);
+                if(specialCooldown<=0){specialReady=true;specialDiv.textContent='⚡';specialDiv.style.borderColor='#ffaa00';}}
+
+            updateUI();
+            renderer.render(scene,camera);requestAnimationFrame(loop);
+        }
+        startWave();loop();
+        addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+    </script>
+</body>
+</html>

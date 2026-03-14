@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Knight Squad – Allies & Action</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; background: #1a1a2e; }
+        #ui { position:absolute;top:20px;left:20px;color:white;text-shadow:2px 2px 0 #ff00ff,4px 4px 0 #00ffff;font-size:22px;z-index:100;background:rgba(0,0,0,0.5);padding:10px 20px;border-radius:20px;border:2px solid gold; }
+        #health-bar { width:200px;height:20px;background:#333;border:2px solid red;margin-top:5px; }
+        #health-fill { height:100%;width:100%;background:linear-gradient(90deg,#ff0000,#ffaa00);transition:width .2s; }
+        #ally-count { color:#00ffaa; }
+        #commands { position:absolute;bottom:30px;left:30px;color:white;background:rgba(0,0,0,0.6);padding:10px;border-radius:15px;border:2px solid cyan;font-size:16px;z-index:100; }
+        .command-key { background:yellow;color:black;padding:2px 8px;border-radius:5px;font-weight:bold; }
+        #special { position:absolute;bottom:30px;right:30px;width:80px;height:80px;border:4px solid gold;border-radius:50%;background:rgba(0,0,0,0.5);color:gold;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;z-index:100; }
+        #crosshair { position:absolute;top:50%;left:50%;width:40px;height:40px;border:3px solid rgba(255,255,255,0.8);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 20px cyan;z-index:200; }
+    </style>
+</head>
+<body>
+    <div id="ui">❤️ <span id="health">100</span> | ⭐ <span id="score">0</span> | 🛡️ Allies: <span id="ally-count">3</span> | 🌊 Wave <span id="wave">1</span><div id="health-bar"><div id="health-fill"></div></div></div>
+    <div id="commands"><span class="command-key">1</span> Attack my target<br><span class="command-key">2</span> Follow me<br><span class="command-key">3</span> Hold position<br><span class="command-key">SPACE</span> Rally (heal & boost)</div>
+    <div id="special">⚡</div>
+    <div id="crosshair"></div>
+
+    <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+        scene.fog = new THREE.Fog(0x1a1a2e, 30, 80);
+        const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+        camera.position.set(0,20,25);camera.lookAt(0,0,0);
+        const renderer = new THREE.WebGLRenderer({ antialias:true });
+        renderer.setSize(innerWidth, innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+        renderer.shadowMap.enabled = true;renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        document.body.appendChild(renderer.domElement);
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(innerWidth, innerHeight);
+        labelRenderer.domElement.style.cssText='position:absolute;top:0;left:0;pointer-events:none;';
+        document.body.appendChild(labelRenderer.domElement);
+        const controls = new PointerLockControls(camera, document.body);
+        scene.add(controls.getObject());
+
+        const healthSpan=document.getElementById('health'),healthFill=document.getElementById('health-fill');
+        const scoreSpan=document.getElementById('score'),allyCountSpan=document.getElementById('ally-count');
+        const waveSpan=document.getElementById('wave'),specialDiv=document.getElementById('special');
+
+        // Lighting
+        scene.add(new THREE.AmbientLight(0x404060));
+        const pl1=new THREE.PointLight(0xff00ff,1,30);pl1.position.set(10,15,10);scene.add(pl1);
+        const pl2=new THREE.PointLight(0x00ffff,1,30);pl2.position.set(-10,15,-10);scene.add(pl2);
+        const dl=new THREE.DirectionalLight(0xffffff,1);dl.position.set(5,20,5);dl.castShadow=true;dl.shadow.mapSize.set(1024,1024);scene.add(dl);
+
+        scene.add(new THREE.GridHelper(60,20,0xff00ff,0x00ffff));
+        const pMat=new THREE.MeshStandardMaterial({color:0xaa44ff,emissive:0x330066});
+        for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;const p=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,4),pMat);p.position.set(Math.cos(a)*20,2,Math.sin(a)*20);p.castShadow=true;scene.add(p);}
+
+        // Player
+        const pg=new THREE.Group();
+        const pbody=new THREE.Mesh(new THREE.CylinderGeometry(1,1,2),new THREE.MeshStandardMaterial({color:0x3399ff,emissive:0x113366}));pbody.position.set(0,1,0);pbody.castShadow=true;pg.add(pbody);
+        const phead=new THREE.Mesh(new THREE.SphereGeometry(0.8),new THREE.MeshStandardMaterial({color:0xffccaa}));phead.position.set(0,2.2,0);phead.castShadow=true;pg.add(phead);
+        const phelm=new THREE.Mesh(new THREE.ConeGeometry(0.9,0.8,8),new THREE.MeshStandardMaterial({color:0xffaa00,emissive:0x442200}));phelm.position.set(0,2.6,0);phelm.castShadow=true;pg.add(phelm);
+        const blade=new THREE.Mesh(new THREE.BoxGeometry(0.2,1.8,0.2),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x666666}));blade.position.set(1,1.5,0.3);blade.rotation.z=-0.2;blade.castShadow=true;pg.add(blade);
+        const pshield=new THREE.Mesh(new THREE.BoxGeometry(1,1.5,0.2),new THREE.MeshStandardMaterial({color:0xff5555,emissive:0x330000}));pshield.position.set(-1,1.2,0);pshield.castShadow=true;pg.add(pshield);
+        scene.add(pg);
+
+        // Ally class
+        class Ally {
+            constructor(id,color){
+                this.group=new THREE.Group();
+                const bm=new THREE.MeshStandardMaterial({color,emissive:0x222222});
+                const b=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,1.8),bm);b.position.y=0.9;b.castShadow=true;this.group.add(b);
+                const h=new THREE.Mesh(new THREE.SphereGeometry(0.6),new THREE.MeshStandardMaterial({color:0xffccaa}));h.position.y=1.9;this.group.add(h);
+                const hm=new THREE.Mesh(new THREE.ConeGeometry(0.7,0.6,6),new THREE.MeshStandardMaterial({color:0xcccccc,emissive:0x333333}));hm.position.y=2.2;this.group.add(hm);
+                this.weapon=new THREE.Mesh(new THREE.BoxGeometry(0.2,1.2,0.2),new THREE.MeshStandardMaterial({color:0xcccccc}));this.weapon.position.set(0.7,1.2,0.3);this.weapon.rotation.z=-0.1;this.group.add(this.weapon);
+
+                const cont=document.createElement('div');cont.style.cssText='width:40px;height:6px;background:#333;border:1px solid #666;';
+                this.hpFill=document.createElement('div');this.hpFill.style.cssText='width:100%;height:100%;background:#0f0;';
+                cont.appendChild(this.hpFill);this.label=new CSS2DObject(cont);this.label.position.set(0,2.5,0);this.group.add(this.label);
+
+                this.id=id;this.health=80;this.maxHealth=80;this.speed=4;this.atkPow=15;this.atkCd=0;this.atkRange=3;
+                this.state='follow';this.target=null;this.dead=false;
+            }
+            update(dt,pp,enemies){
+                if(this.dead)return;
+                const pct=this.health/this.maxHealth;
+                this.hpFill.style.width=(pct*100)+'%';
+                this.hpFill.style.background=pct>.6?'#0f0':pct>.3?'#ff0':'#f00';
+                if(this.atkCd>0)this.atkCd-=dt;
+
+                if(this.state==='follow'){
+                    const dir=new THREE.Vector3().subVectors(pp,this.group.position).normalize();
+                    const dist=pp.distanceTo(this.group.position);
+                    if(dist>3)this.group.position.add(dir.multiplyScalar(this.speed*dt));
+                    this.group.lookAt(new THREE.Vector3(pp.x,this.group.position.y,pp.z));
+                } else if(this.state==='attack'&&this.target&&!this.target.dead){
+                    const tp=this.target.mesh.position;
+                    const dir=new THREE.Vector3().subVectors(tp,this.group.position).normalize();
+                    const dist=tp.distanceTo(this.group.position);
+                    if(dist>this.atkRange)this.group.position.add(dir.multiplyScalar(this.speed*1.5*dt));
+                    if(dist<this.atkRange&&this.atkCd<=0){
+                        this.atkCd=1;this.target.takeDamage(this.atkPow);
+                        this.weapon.rotation.z=-1;setTimeout(()=>this.weapon.rotation.z=-0.1,150);
+                    }
+                    this.group.lookAt(new THREE.Vector3(tp.x,this.group.position.y,tp.z));
+                } else if(this.state==='attack'){this.state='follow';this.target=null;}
+            }
+            takeDamage(amt){this.health-=amt;return this.health<=0;}
+            die(){this.dead=true;scene.remove(this.group);}
+        }
+
+        // Enemy class
+        class Enemy {
+            constructor(type,waveNum){
+                let col=0xff44aa,hp=50,spd=2.5,sz=1,dmg=15;
+                if(type==='fast'){col=0xffaa00;hp=25+waveNum*3;spd=4+waveNum*0.2;sz=0.7;dmg=10;}
+                else if(type==='tank'){col=0xff3333;hp=80+waveNum*8;spd=1.5;sz=1.2;dmg=25;}
+                else{hp=40+waveNum*5;spd=2.5+waveNum*0.15;dmg=12+waveNum*2;}
+
+                const mat=new THREE.MeshStandardMaterial({color:col,emissive:0x220000});
+                this.mesh=new THREE.Mesh(new THREE.ConeGeometry(sz,sz*2,6),mat);this.mesh.castShadow=true;
+                const eMat=new THREE.MeshBasicMaterial({color:0xffffff});const pMat2=new THREE.MeshBasicMaterial({color:0});
+                const e1=new THREE.Mesh(new THREE.SphereGeometry(0.15),eMat);e1.position.set(-0.25,0.6,sz);this.mesh.add(e1);
+                const p1=new THREE.Mesh(new THREE.SphereGeometry(0.07),pMat2);p1.position.set(-0.25,0.6,sz+0.1);this.mesh.add(p1);
+                const e2=e1.clone();e2.position.set(0.25,0.6,sz);this.mesh.add(e2);
+                const p2=p1.clone();p2.position.set(0.25,0.6,sz+0.1);this.mesh.add(p2);
+
+                const a=Math.random()*Math.PI*2;
+                this.mesh.position.set(Math.cos(a)*25,sz,Math.sin(a)*25);
+                scene.add(this.mesh);
+                this.health=hp;this.maxHealth=hp;this.speed=spd;this.type=type;this.damage=dmg;this.dead=false;
+
+                const cont=document.createElement('div');cont.style.cssText='width:40px;height:5px;background:#333;';
+                this.hpFill=document.createElement('div');this.hpFill.style.cssText='width:100%;height:100%;background:#f00;';
+                cont.appendChild(this.hpFill);this.label=new CSS2DObject(cont);this.label.position.set(0,sz*2+0.5,0);this.mesh.add(this.label);
+            }
+            update(pp,dt){if(this.dead)return;const dir=new THREE.Vector3().subVectors(pp,this.mesh.position).normalize();this.mesh.position.add(dir.multiplyScalar(this.speed*dt));this.mesh.lookAt(pp);}
+            takeDamage(amt){this.health-=amt;this.hpFill.style.width=(Math.max(0,this.health)/this.maxHealth*100)+'%';this.mesh.material.emissive.setHex(0x442200);setTimeout(()=>{if(!this.dead)this.mesh.material.emissive.setHex(0x220000);},100);return this.health<=0;}
+            die(){this.dead=true;scene.remove(this.mesh);}
+        }
+
+        let health=100,maxHealth=100,score=0,wave=1;
+        let enemies=[],allies=[];
+        let waveCount=8+wave*3,spawned=0,killed=0,specialCd=0;
+
+        for(let i=0;i<3;i++){const a=new Ally(i,[0x00ffaa,0xaa44ff,0xffaa44][i]);a.group.position.set(i*2-2,0,2);scene.add(a.group);allies.push(a);}
+
+        const ks={w:false,a:false,s:false,d:false};
+        document.addEventListener('keydown',e=>{
+            if(e.code==='KeyW')ks.w=true;if(e.code==='KeyS')ks.s=true;if(e.code==='KeyA')ks.a=true;if(e.code==='KeyD')ks.d=true;
+            if(e.code==='Space'){e.preventDefault();useSpecial();}
+            if(e.code==='Digit1')cmdAllies('attack');if(e.code==='Digit2')cmdAllies('follow');if(e.code==='Digit3')cmdAllies('hold');
+            if(e.code==='Escape')controls.unlock();if(e.code==='KeyR')location.reload();
+        });
+        document.addEventListener('keyup',e=>{if(e.code==='KeyW')ks.w=false;if(e.code==='KeyS')ks.s=false;if(e.code==='KeyA')ks.a=false;if(e.code==='KeyD')ks.d=false;});
+        let atkDown=false;
+        document.addEventListener('mousedown',e=>{if(e.button===0)atkDown=true;});
+        document.addEventListener('mouseup',e=>{if(e.button===0)atkDown=false;});
+        renderer.domElement.addEventListener('click',()=>controls.lock());
+
+        function cmdAllies(cmd){
+            allies.forEach(a=>{
+                if(a.dead)return;
+                if(cmd==='attack'){
+                    let closest=null,minD=Infinity;
+                    enemies.forEach(e=>{if(e.dead)return;const d=e.mesh.position.distanceTo(a.group.position);if(d<minD){minD=d;closest=e;}});
+                    a.state='attack';a.target=closest;
+                }else{a.state=cmd;a.target=null;}
+            });
+        }
+
+        function useSpecial(){
+            if(specialCd>0)return;specialCd=5;
+            allies.forEach(a=>{if(!a.dead)a.health=Math.min(a.maxHealth,a.health+30);});
+            health=Math.min(maxHealth,health+20);
+            scene.background.setHex(0xffffff);setTimeout(()=>scene.background.setHex(0x1a1a2e),150);
+        }
+
+        function doAttack(){
+            const pp=pg.position.clone(),fwd=new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+            for(let i=enemies.length-1;i>=0;i--){
+                const e=enemies[i];if(e.dead)continue;
+                const toE=new THREE.Vector3().subVectors(e.mesh.position,pp);
+                if(toE.length()<4.5&&fwd.dot(toE.normalize())>0.2){
+                    if(e.takeDamage(20+wave*3)){e.die();enemies.splice(i,1);killed++;score+=20;}
+                    break;
+                }
+            }
+            blade.rotation.z=-1.5;setTimeout(()=>blade.rotation.z=-0.2,100);
+        }
+
+        function spawnEnemy(){if(spawned>=waveCount)return;const r=Math.random();enemies.push(new Enemy(r<0.2?'fast':r<0.4?'tank':'normal',wave));spawned++;}
+        function startWave(){spawned=0;killed=0;waveCount=8+wave*3;for(let i=0;i<5;i++)spawnEnemy();}
+        startWave();
+
+        let lt=performance.now()/1000,spT=0;
+        function loop(){
+            const now=performance.now()/1000,dt=Math.min(0.1,now-lt);lt=now;
+            if(!controls.isLocked){renderer.render(scene,camera);labelRenderer.render(scene,camera);requestAnimationFrame(loop);return;}
+
+            if(ks.w)controls.moveForward(8*dt);if(ks.s)controls.moveForward(-8*dt);
+            if(ks.a)controls.moveRight(-8*dt);if(ks.d)controls.moveRight(8*dt);
+
+            pg.position.copy(controls.getObject().position);pg.position.y=0;pg.rotation.y=camera.rotation.y;
+            if(atkDown){doAttack();atkDown=false;}
+
+            const pp=pg.position.clone();
+
+            // Allies
+            allies.forEach(a=>{
+                if(a.dead)return;
+                a.update(dt,pp,enemies);
+                enemies.forEach(e=>{
+                    if(e.dead)return;
+                    if(e.mesh.position.distanceTo(a.group.position)<2){
+                        // Enemy hits ally ~once per second
+                        if(Math.random()<dt*1.2){
+                            if(a.takeDamage(e.damage*0.3)){a.die();allies=allies.filter(x=>x!==a);}
+                        }
+                    }
+                });
+            });
+
+            // Enemies
+            enemies.forEach(e=>{
+                if(e.dead)return;
+                e.update(pp,dt);
+                if(pp.distanceTo(e.mesh.position)<2){
+                    // ~1 hit per second to player
+                    if(Math.random()<dt*1.5){
+                        health-=e.damage*0.4;
+                        if(health<=0){health=0;controls.unlock();alert(`GAME OVER! Score: ${score} | Wave: ${wave}`);location.reload();}
+                    }
+                }
+            });
+
+            spT+=dt;if(spT>1&&spawned<waveCount){spT=0;spawnEnemy();}
+            if(killed>=waveCount&&enemies.filter(e=>!e.dead).length===0){
+                wave++;health=Math.min(maxHealth,health+30);
+                if(wave%2===0){const a=new Ally(allies.length,0xffaa44);a.group.position.copy(pp.clone().add(new THREE.Vector3(2,0,2)));scene.add(a.group);allies.push(a);}
+                startWave();
+            }
+
+            if(specialCd>0)specialCd-=dt;
+            specialDiv.style.background=specialCd>0?'rgba(0,0,0,0.5)':'rgba(255,215,0,0.8)';
+
+            // Camera follow
+            camera.position.set(pp.x,15,pp.z+20);camera.lookAt(pp);
+
+            // Animate lights
+            pl1.position.x=Math.sin(now)*10;pl1.position.z=Math.cos(now)*10;
+            pl2.position.x=Math.sin(now+2)*10;pl2.position.z=Math.cos(now+2)*10;
+
+            healthSpan.textContent=Math.floor(Math.max(0,health));healthFill.style.width=(health/maxHealth*100)+'%';
+            scoreSpan.textContent=score;waveSpan.textContent=wave;allyCountSpan.textContent=allies.filter(a=>!a.dead).length;
+
+            renderer.render(scene,camera);labelRenderer.render(scene,camera);requestAnimationFrame(loop);
+        }
+        loop();
+        addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);labelRenderer.setSize(innerWidth,innerHeight);});
+    </script>
+</body>
+</html>
