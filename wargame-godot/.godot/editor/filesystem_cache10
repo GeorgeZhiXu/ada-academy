@@ -1,0 +1,12 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1773114551
+icon.svg::CompressedTexture2D::8444370379600755281::1773107791::1773114551::1::::<><><>0<>0<>0e0ec42738b2add3da338285b9ae8232<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
+::res://assets/::1773107586
+::res://scenes/::1773109109
+main.tscn::PackedScene::-1::1773109109::0::1::::<><><>0<>0<><>::res://scripts/game_manager.gd<>res://scripts/player.gd
+::res://scripts/::1773107780
+flag.gd::GDScript::6033738381164627507::1773107663::0::1::::<>Node3D<><>0<>0<><>::
+game_manager.gd::GDScript::2533273524531537347::1773107698::0::1::::<>Node3D<><>0<>0<><>::
+player.gd::GDScript::1625835371093113410::1773107617::0::1::::<>CharacterBody3D<><>0<>0<><>::
+setup_scene.gd::GDScript::772964504802095827::1773107780::0::1::::<>EditorScript<><>0<>1<><>::
+soldier.gd::GDScript::7108879256885193724::1773107645::0::1::::<>CharacterBody3D<><>0<>0<><>::

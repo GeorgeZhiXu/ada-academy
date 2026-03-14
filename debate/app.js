@@ -896,12 +896,13 @@ function getRandomTopic() {
     return allImpromptuTopics[Math.floor(Math.random() * allImpromptuTopics.length)];
 }
 
-function launchGame(topic, side, skill, maxRounds, rounds, charLimit, timerOn, msg) {
+function launchGame(topic, side, skill, maxRounds, rounds, charLimit, timerOn, msg, aiFirst) {
     state.age = state.age || '14-17';
     state.skill = skill;
     state.maxRounds = maxRounds;
     state.topic = topic;
     state.side = side;
+    state.aiFirst = !!aiFirst;
     if (timerOn) settings.timer = true;
 
     document.getElementById('debate-topic-text').textContent = topic;
@@ -937,10 +938,10 @@ function startSpeedRound() {
 function startRebuttalDrill() {
     const t = getRandomTopic();
     launchGame(t, 'against', 'intermediate', 3, [
-        { type: 'rebuttal', label: 'Rebuttal 1', desc: 'AI argues. Tear it apart.' },
+        { type: 'rebuttal', label: 'Rebuttal 1', desc: 'The AI just made their case. Tear it apart.' },
         { type: 'rebuttal', label: 'Rebuttal 2', desc: 'AI responds. Counter again.' },
-        { type: 'rebuttal', label: 'Final Rebuttal', desc: 'Destroy their case.' }
-    ], 1000, false, `Rebuttal Drill: Refute everything on "${t}"`);
+        { type: 'rebuttal', label: 'Final Rebuttal', desc: 'Finish them off.' }
+    ], 1000, false, `Rebuttal Drill: Refute everything on "${t}"`, true);
 }
 
 function startDevilsAdvocate() {
@@ -1637,10 +1638,36 @@ function startDebate() {
     addSystemMsg(`${pName} vs AI — ${state.side.toUpperCase()} "${state.topic}". The debate begins.`);
     addSystemMsg(`Round 1: ${roundInfo.label} — ${roundInfo.desc}`);
     updateRoundDisplay();
-    showHint();
-    startTimer();
 
     const input = document.getElementById('debate-input');
+
+    // AI goes first (e.g. rebuttal drill)
+    if (state.aiFirst) {
+        state.aiFirst = false;
+        input.disabled = true;
+        document.getElementById('send-btn').disabled = true;
+        addSystemMsg('The AI presents their argument first...');
+        showTyping();
+        setTimeout(() => {
+            removeTyping();
+            const aiSide = state.side === 'for' ? 'against' : 'for';
+            const aiOpener = buildOpener(aiStrategies[state.skill].complexity, aiSide, state.topic);
+            addBubble(aiOpener, 'ai');
+            state.aiArgs.push(aiOpener);
+            addSystemMsg('Now it\'s your turn. Rebut their argument.');
+            showHint();
+            startTimer();
+            input.disabled = false;
+            input.value = '';
+            document.getElementById('send-btn').disabled = false;
+            document.getElementById('char-count').textContent = '0';
+            input.focus();
+        }, 1500);
+        return;
+    }
+
+    showHint();
+    startTimer();
     input.disabled = false;
     input.value = '';
     document.getElementById('send-btn').disabled = false;

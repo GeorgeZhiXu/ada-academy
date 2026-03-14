@@ -1,0 +1,4 @@
+res://scripts/game_manager.gd
+res://scripts/player.gd
+res://scripts/soldier.gd
+res://scenes/main.tscn

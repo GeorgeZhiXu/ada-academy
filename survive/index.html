@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Survive</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌲</text></svg>">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#1a1a2e;overflow:hidden;font-family:'Segoe UI',sans-serif;user-select:none;-webkit-user-select:none}
+        canvas{display:block;cursor:crosshair}
+        #ui{position:fixed;top:0;left:0;width:100%;pointer-events:none;z-index:10}
+        .hud{display:flex;justify-content:space-between;padding:8px 12px;gap:8px;flex-wrap:wrap}
+        .hud-box{background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:5px 10px;color:#fff;font-size:11px;display:flex;align-items:center;gap:5px}
+        .hud-box b{font-size:14px}
+        .hb-low{color:#ef4444}.hb-ok{color:#f59e0b}.hb-good{color:#22c55e}
+        #hotbar{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:3px;z-index:10;pointer-events:auto}
+        .hb-slot{width:48px;height:48px;background:rgba(0,0,0,.7);border:2px solid rgba(255,255,255,.1);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative;transition:all .15s}
+        .hb-slot.active{border-color:#f59e0b;background:rgba(245,158,11,.15)}
+        .hb-slot .key{position:absolute;top:1px;left:4px;font-size:8px;color:rgba(255,255,255,.3)}
+        .hb-slot .cnt{position:absolute;bottom:1px;right:4px;font-size:9px;color:#f59e0b;font-weight:700}
+        #tooltip{position:fixed;background:rgba(0,0,0,.85);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;pointer-events:none;z-index:20;display:none;border:1px solid rgba(255,255,255,.1);max-width:200px}
+        #log{position:fixed;bottom:70px;left:10px;z-index:10;pointer-events:none;max-width:300px}
+        .log-msg{background:rgba(0,0,0,.6);color:#aaa;padding:4px 10px;border-radius:5px;font-size:11px;margin-top:3px;border-left:2px solid #444;animation:logIn .3s}
+        .log-msg.good{border-left-color:#22c55e;color:#86efac}
+        .log-msg.bad{border-left-color:#ef4444;color:#fca5a5}
+        .log-msg.warn{border-left-color:#f59e0b;color:#fcd34d}
+        @keyframes logIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        #title{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:100}
+        #title h1{font-size:56px;font-weight:800;color:#22c55e;letter-spacing:4px}
+        #title p{color:rgba(255,255,255,.4);margin:8px 0 24px}
+        #title button{padding:14px 40px;background:#22c55e;color:#000;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;pointer-events:auto}
+        #title button:hover{background:#16a34a}
+        #title.hidden{display:none}
+        #minimap{position:fixed;bottom:70px;right:10px;width:120px;height:120px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);border-radius:8px;z-index:10;overflow:hidden}
+        #dayover{position:fixed;inset:0;background:#000;z-index:90;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s}
+        #dayover.show{opacity:1}
+        #dayover h2{color:#8caf8c;font-size:24px}
+        #ai-btn{position:fixed;bottom:70px;right:140px;width:40px;height:40px;background:rgba(59,130,246,.7);border:1px solid rgba(59,130,246,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:15;cursor:pointer;pointer-events:auto;font-size:16px}
+        #ai-chat{display:none;position:fixed;bottom:120px;right:10px;width:300px;z-index:50;pointer-events:auto}
+        .ai-box{background:rgba(0,0,0,.85);border:1px solid rgba(59,130,246,.3);border-radius:10px;overflow:hidden}
+        .ai-head{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);color:#3b82f6;font-size:12px;font-weight:700}
+        .ai-msgs{max-height:120px;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:4px}
+        .ai-m{font-size:11px;padding:4px 8px;border-radius:6px;max-width:85%}
+        .ai-m.ai{background:rgba(59,130,246,.12);color:#93c5fd;align-self:flex-start}
+        .ai-m.me{background:rgba(255,255,255,.06);color:#ccc;align-self:flex-end}
+        .ai-inp{display:flex;gap:4px;padding:8px;border-top:1px solid rgba(255,255,255,.05)}
+        .ai-inp input{flex:1;padding:6px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#fff;font-size:11px;outline:none;font-family:inherit}
+        .ai-inp button{padding:6px 12px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer}
+    </style>
+</head>
+<body>
+    <canvas id="game"></canvas>
+    <div id="title"><h1>SURVIVE</h1><p>10 people. The wilderness. Click to move. Click to interact.</p><button onclick="start()">Play</button></div>
+    <div id="dayover"><h2 id="daytext"></h2></div>
+    <div id="ui"><div class="hud" id="hud"></div></div>
+    <div id="hotbar"></div>
+    <div id="tooltip"></div>
+    <div id="log"></div>
+    <div id="minimap"><canvas id="mmc" width="120" height="120"></canvas></div>
+    <div id="ai-btn" onclick="toggleAI()">📡</div>
+    <div id="ai-chat"><div class="ai-box"><div class="ai-head">📡 AI Radio</div><div class="ai-msgs" id="ai-msgs"></div><div class="ai-inp"><input id="ai-in" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAI()"><button onclick="sendAI()">Send</button></div></div></div>
+    <script src="game.js"></script>
+</body>
+</html>
