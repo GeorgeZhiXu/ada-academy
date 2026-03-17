@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Knight Tribe – Visual Overhaul</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid gold;
+            z-index: 100;
+            backdrop-filter: blur(3px);
+            pointer-events: none;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        #health-bar, #hunger-bar {
+            width: 200px;
+            height: 15px;
+            background: #333;
+            border: 1px solid #888;
+            margin: 5px 0;
+        }
+        #health-fill { height: 100%; background: linear-gradient(90deg, #f00, #f66); width: 100%; }
+        #hunger-fill { height: 100%; background: linear-gradient(90deg, #ffaa00, #ffcc66); width: 100%; }
+        #inventory {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 15px;
+            border: 2px solid gold;
+            z-index: 100;
+            backdrop-filter: blur(3px);
+        }
+        .slot {
+            width: 60px;
+            height: 60px;
+            background: #444;
+            border: 2px solid #8b6e4b;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            position: relative;
+        }
+        .slot.selected {
+            border-color: gold;
+            box-shadow: 0 0 15px gold;
+        }
+        .slot-count {
+            position: absolute;
+            bottom: 2px;
+            right: 5px;
+            font-size: 14px;
+            color: #ffd966;
+        }
+        #crafting-panel {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid cyan;
+            z-index: 150;
+            width: 200px;
+            backdrop-filter: blur(3px);
+            pointer-events: all;
+        }
+        .craft-item {
+            background: #3a4a3a;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #8b6e4b;
+            transition: 0.1s;
+        }
+        .craft-item:hover {
+            background: #4a5a4a;
+            border-color: gold;
+        }
+        #commands {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid cyan;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        .key { color: gold; font-weight: bold; }
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 200;
+        }
+        #mode-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            color: cyan;
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid cyan;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div class="stat-row">❤️ Health: <span id="health">100</span> | 🍗 Hunger: <span id="hunger">100</span></div>
+        <div id="health-bar"><div id="health-fill"></div></div>
+        <div id="hunger-bar"><div id="hunger-fill"></div></div>
+        <div class="stat-row">🪵 Wood: <span id="wood">20</span> | 🪨 Stone: <span id="stone">15</span> | ⛓️ Iron: <span id="iron">0</span> | 🍖 Food: <span id="food">25</span></div>
+        <div class="stat-row">👥 Followers: <span id="followersAlive">5</span>/10 | 🌊 Wave <span id="wave">1</span></div>
+    </div>
+    <div id="inventory">
+        <div class="slot selected" id="slot1"><span>🪓</span><span class="slot-count" id="slot1count">0</span></div>
+        <div class="slot" id="slot2"><span>⛏️</span><span class="slot-count" id="slot2count">0</span></div>
+        <div class="slot" id="slot3"><span>⚔️</span><span class="slot-count" id="slot3count">0</span></div>
+        <div class="slot" id="slot4"><span>🍖</span><span class="slot-count" id="slot4count">5</span></div>
+    </div>
+    <div id="crafting-panel">
+        <h3 style="margin:0 0 10px;">🛠️ Craft</h3>
+        <div class="craft-item" id="craftStoneAxe">Stone Axe (2 wood, 2 stone)</div>
+        <div class="craft-item" id="craftStonePick">Stone Pick (2 wood, 3 stone)</div>
+        <div class="craft-item" id="craftIronAxe">Iron Axe (3 wood, 3 iron)</div>
+        <div class="craft-item" id="craftIronPick">Iron Pick (3 wood, 4 iron)</div>
+        <div class="craft-item" id="craftWall">Wood Wall (5 wood, 2 stone)</div>
+        <div class="craft-item" id="craftCampfire">Campfire (4 wood, 1 stone)</div>
+    </div>
+    <div id="commands">
+        <span class="key">WASD</span> Move | <span class="key">Left Click</span> Attack | <span class="key">E</span> Gather<br>
+        <span class="key">1-4</span> Select tool | <span class="key">F1</span> Toggle view | <span class="key">F</span> Attack | <span class="key">H</span> Hold | <span class="key">R</span> Recruit (50 gold)
+    </div>
+    <div id="mode-indicator">Third Person</div>
+    <div id="crosshair"></div>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/PointerLockControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'https://unpkg.com/three@0.128.0/examples/jsm/renderers/CSS2DRenderer.js';
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a3a4a);
+        scene.fog = new THREE.Fog(0x1a3a4a, 50, 200);
+
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 10);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        document.body.appendChild(renderer.domElement);
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        document.body.appendChild(labelRenderer.domElement);
+
+        const controls = new PointerLockControls(camera, document.body);
+        scene.add(controls.getObject());
+
+        const healthSpan = document.getElementById('health');
+        const healthFill = document.getElementById('health-fill');
+        const hungerSpan = document.getElementById('hunger');
+        const hungerFill = document.getElementById('hunger-fill');
+        const woodSpan = document.getElementById('wood');
+        const stoneSpan = document.getElementById('stone');
+        const ironSpan = document.getElementById('iron');
+        const foodSpan = document.getElementById('food');
+        const followersAliveSpan = document.getElementById('followersAlive');
+        const waveSpan = document.getElementById('wave');
+        const slot1count = document.getElementById('slot1count');
+        const slot2count = document.getElementById('slot2count');
+        const slot3count = document.getElementById('slot3count');
+        const slot4count = document.getElementById('slot4count');
+        const slots = [document.getElementById('slot1'), document.getElementById('slot2'), document.getElementById('slot3'), document.getElementById('slot4')];
+        const modeIndicator = document.getElementById('mode-indicator');
+
+        let health = 100, hunger = 100, wood = 20, stone = 15, iron = 0, food = 25, wave = 1, gold = 100;
+        let stoneAxe = 0, stonePick = 0, ironAxe = 0, ironPick = 0, selectedSlot = 0;
+        let followerMode = 'follow', viewMode = 'third';
+
+        // Lighting
+        scene.add(new THREE.AmbientLight(0x404060));
+        const sunLight = new THREE.DirectionalLight(0xffeedd, 1.5);
+        sunLight.position.set(30, 50, 30);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.set(2048, 2048);
+        sunLight.shadow.camera.near = 0.5;
+        sunLight.shadow.camera.far = 200;
+        sunLight.shadow.camera.left = -50;
+        sunLight.shadow.camera.right = 50;
+        sunLight.shadow.camera.top = 50;
+        sunLight.shadow.camera.bottom = -50;
+        scene.add(sunLight);
+        const fillLight = new THREE.PointLight(0x446688, 0.8);
+        fillLight.position.set(-20, 20, -20);
+        scene.add(fillLight);
+
+        // Sky
+        const skyCanvas = document.createElement('canvas');
+        skyCanvas.width = 512; skyCanvas.height = 512;
+        const skyCtx = skyCanvas.getContext('2d');
+        const skyGrad = skyCtx.createLinearGradient(0,0,0,512);
+        skyGrad.addColorStop(0, '#1a3a5a');
+        skyGrad.addColorStop(0.5, '#3a6a8a');
+        skyGrad.addColorStop(1, '#5a8aaa');
+        skyCtx.fillStyle = skyGrad;
+        skyCtx.fillRect(0,0,512,512);
+        scene.background = new THREE.CanvasTexture(skyCanvas);
+
+        // Ground
+        const groundCanvas = document.createElement('canvas');
+        groundCanvas.width = 1024; groundCanvas.height = 1024;
+        const gCtx = groundCanvas.getContext('2d');
+        gCtx.fillStyle = '#3a7a3a';
+        gCtx.fillRect(0,0,1024,1024);
+        for (let i=0; i<5000; i++) {
+            gCtx.fillStyle = `rgba(70,130,70,${Math.random()*0.5})`;
+            gCtx.fillRect(Math.random()*1024|0, Math.random()*1024|0, 5, 5);
+        }
+        for (let i=0; i<500; i++) {
+            gCtx.fillStyle = `rgba(255,200,100,${Math.random()*0.8})`;
+            gCtx.beginPath();
+            gCtx.arc(Math.random()*1024, Math.random()*1024, 2, 0, Math.PI*2);
+            gCtx.fill();
+        }
+        const groundTex = new THREE.CanvasTexture(groundCanvas);
+        groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping;
+        groundTex.repeat.set(20, 20);
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200, 128, 128), new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.7 }));
+        ground.rotation.x = -Math.PI/2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Trees
+        function createTree(x, z) {
+            const g = new THREE.Group();
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.8, 3), new THREE.MeshStandardMaterial({ color: 0x8B5A2B }));
+            trunk.position.y = 1.5; trunk.castShadow = true; trunk.receiveShadow = true; g.add(trunk);
+            const leaf = new THREE.Mesh(new THREE.ConeGeometry(1.2, 2, 6), new THREE.MeshStandardMaterial({ color: 0x2E7D32 }));
+            leaf.position.y = 3.2; leaf.castShadow = true; g.add(leaf);
+            const leaf2 = leaf.clone(); leaf2.scale.set(0.8,1,0.8); leaf2.position.y = 4.5; g.add(leaf2);
+            g.position.set(x, 0, z);
+            return g;
+        }
+        for (let i=0; i<50; i++) scene.add(createTree((Math.random()-0.5)*180, (Math.random()-0.5)*180));
+
+        // Rocks
+        for (let i=0; i<30; i++) {
+            const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.5+Math.random()*0.3), new THREE.MeshStandardMaterial({ color: 0x888888 }));
+            rock.position.set((Math.random()-0.5)*180, 0.3, (Math.random()-0.5)*180);
+            rock.castShadow = true; rock.receiveShadow = true; scene.add(rock);
+        }
+
+        // Resources
+        class ResourceNode {
+            constructor(x, z, type) {
+                this.type = type;
+                if (type === 'tree') {
+                    this.mesh = createTree(x, z); scene.add(this.mesh); this.health = 5;
+                } else {
+                    let geo, mat;
+                    if (type === 'rock') { geo = new THREE.DodecahedronGeometry(0.8); mat = new THREE.MeshStandardMaterial({ color: 0x888888 }); }
+                    else if (type === 'iron') { geo = new THREE.OctahedronGeometry(0.7); mat = new THREE.MeshStandardMaterial({ color: 0xcc8866, emissive: 0x331100 }); }
+                    else { geo = new THREE.SphereGeometry(0.6); mat = new THREE.MeshStandardMaterial({ color: 0xaa44aa }); }
+                    this.mesh = new THREE.Mesh(geo, mat);
+                    this.mesh.position.set(x, 0.5, z);
+                    this.mesh.castShadow = true; this.mesh.receiveShadow = true;
+                    scene.add(this.mesh);
+                    this.health = type === 'rock' ? 3 : (type === 'iron' ? 4 : 2);
+                }
+            }
+            gather() { this.health--; if (this.health <= 0) { scene.remove(this.mesh); return true; } return false; }
+        }
+
+        let resources = [];
+        for (let i=0; i<40; i++) {
+            const types = ['tree','rock','iron','berry'];
+            resources.push(new ResourceNode((Math.random()-0.5)*150, (Math.random()-0.5)*150, types[Math.random()*4|0]));
+        }
+
+        // Characters
+        function createCharacter(color, isEnemy = false) {
+            const g = new THREE.Group();
+            const bodyMat = new THREE.MeshStandardMaterial({ color });
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.2), bodyMat);
+            body.position.y = 0.6; body.castShadow = true; g.add(body);
+
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshStandardMaterial({ color: isEnemy ? 0xaa3333 : 0xffccaa }));
+            head.position.y = 1.3; head.castShadow = true; g.add(head);
+
+            const helmet = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.4 }));
+            helmet.position.y = 1.45; g.add(helmet);
+
+            if (!isEnemy) {
+                const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                const e1 = new THREE.Mesh(new THREE.SphereGeometry(0.08), eyeMat);
+                e1.position.set(-0.12, 1.35, 0.25); g.add(e1);
+                const e2 = e1.clone(); e2.position.set(0.12, 1.35, 0.25); g.add(e2);
+            }
+
+            const armMat = new THREE.MeshStandardMaterial({ color });
+            [-0.4, 0.4].forEach(x => {
+                const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8), armMat);
+                arm.position.set(x, 0.9, 0); arm.rotation.z = x > 0 ? -0.2 : 0.2; arm.castShadow = true; g.add(arm);
+            });
+
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x332211 });
+            [-0.15, 0.15].forEach(x => {
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.8), legMat);
+                leg.position.set(x, 0.2, 0); leg.castShadow = true; g.add(leg);
+            });
+
+            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.8, 0.1), new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.5 }));
+            blade.position.set(0.6, 1.0, 0.2); blade.rotation.z = -0.2; blade.castShadow = true; g.add(blade);
+            const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.15), new THREE.MeshStandardMaterial({ color: 0xcc8866 }));
+            hilt.position.set(0.6, 0.7, 0.2); g.add(hilt);
+
+            return g;
+        }
+
+        function addHealthBar(obj, color, maxHP) {
+            const div = document.createElement('div');
+            div.style.cssText = 'width:40px;height:6px;background:#333;border:1px solid #666;';
+            const fill = document.createElement('div');
+            fill.style.cssText = 'width:100%;height:100%;background:'+color+';';
+            div.appendChild(fill);
+            const label = new CSS2DObject(div);
+            label.position.set(0, 2.0, 0);
+            obj.add(label);
+            obj.userData.healthBar = fill;
+            obj.userData.maxHealth = maxHP;
+        }
+
+        // Player
+        const player = createCharacter(0x3399ff);
+        scene.add(player);
+        player.userData = { health: 100, attackCooldown: 0, attackDamage: 20 };
+        addHealthBar(player, '#f00', 100);
+
+        // Followers
+        let followers = [];
+        function createFollower() {
+            const f = createCharacter(0x33aa33);
+            f.userData = { health: 60, attackCooldown: 0, attackDamage: 10 };
+            scene.add(f);
+            followers.push(f);
+            addHealthBar(f, '#0f0', 60);
+            return f;
+        }
+        for (let i=0; i<5; i++) createFollower();
+
+        // Enemies
+        let enemies = [];
+        function createEnemy() {
+            const e = createCharacter(0xcc3333, true);
+            e.userData = { health: 40, attackCooldown: 0, attackDamage: 8 };
+            scene.add(e);
+            enemies.push(e);
+            addHealthBar(e, '#f00', 40);
+            // Spawn at edge
+            const angle = Math.random() * Math.PI * 2;
+            e.position.set(Math.cos(angle) * 60, 0, Math.sin(angle) * 60);
+            return e;
+        }
+        for (let i=0; i<3; i++) createEnemy();
+
+        // Input
+        const keyState = {};
+        document.addEventListener('keydown', e => {
+            keyState[e.code] = true;
+            if (e.code === 'KeyE') interact();
+            if (e.code === 'KeyF') followerMode = 'attack';
+            if (e.code === 'KeyH') followerMode = 'hold';
+            if (e.code === 'F1') { e.preventDefault(); toggleView(); }
+            if (e.code.startsWith('Digit')) selectSlot(parseInt(e.code[5]) - 1);
+            if (e.code === 'KeyR') recruitFollower();
+            if (e.code === 'Escape') controls.unlock();
+        });
+        document.addEventListener('keyup', e => { keyState[e.code] = false; });
+
+        let attackPressed = false;
+        document.addEventListener('mousedown', e => { if (e.button === 0) attackPressed = true; });
+        document.addEventListener('mouseup', e => { if (e.button === 0) attackPressed = false; });
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        renderer.domElement.addEventListener('click', () => controls.lock());
+
+        function toggleView() {
+            viewMode = viewMode === 'first' ? 'third' : 'first';
+            modeIndicator.textContent = viewMode === 'first' ? 'First Person' : 'Third Person';
+        }
+
+        function selectSlot(i) {
+            if (i < 0 || i > 3) return;
+            selectedSlot = i;
+            slots.forEach((s, idx) => s.classList.toggle('selected', idx === i));
+        }
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2(0, 0);
+
+        function interact() {
+            raycaster.setFromCamera(mouse, camera);
+            for (const r of resources) {
+                if (!r.mesh) continue;
+                const targets = r.mesh.children ? [r.mesh, ...r.mesh.children] : [r.mesh];
+                const hits = raycaster.intersectObjects(targets);
+                if (hits.length > 0) {
+                    let gain = 1;
+                    if (r.type === 'tree' && stoneAxe > 0) gain = 2;
+                    if (r.type === 'rock' && stonePick > 0) gain = 2;
+                    if (r.type === 'iron' && ironPick > 0) gain = 2;
+                    if (r.type === 'tree') wood += gain;
+                    else if (r.type === 'rock') stone += gain;
+                    else if (r.type === 'iron') iron += gain;
+                    else if (r.type === 'berry') food += gain;
+                    if (r.gather()) resources = resources.filter(x => x !== r);
+                    updateUI();
+                    break;
+                }
+            }
+        }
+
+        function attack() {
+            raycaster.setFromCamera(mouse, camera);
+            const allEnemyMeshes = [];
+            enemies.forEach(e => { allEnemyMeshes.push(e); e.children.forEach(c => allEnemyMeshes.push(c)); });
+            const hits = raycaster.intersectObjects(allEnemyMeshes);
+            if (hits.length > 0) {
+                let enemy = hits[0].object;
+                while (enemy.parent && !enemies.includes(enemy)) enemy = enemy.parent;
+                if (enemies.includes(enemy)) {
+                    let dmg = 20;
+                    if (selectedSlot === 2 && ironAxe > 0) dmg = 35;
+                    else if (selectedSlot === 0 && stoneAxe > 0) dmg = 25;
+                    enemy.userData.health -= dmg;
+                    enemy.userData.healthBar.style.width = Math.max(0, enemy.userData.health / enemy.userData.maxHealth * 100) + '%';
+                    if (enemy.userData.health <= 0) {
+                        scene.remove(enemy);
+                        enemies = enemies.filter(e => e !== enemy);
+                        food += 5; gold += 10;
+                        updateUI();
+                    }
+                }
+            }
+        }
+
+        // Crafting
+        document.getElementById('craftStoneAxe').onclick = () => { if (wood >= 2 && stone >= 2) { wood -= 2; stone -= 2; stoneAxe++; updateUI(); } };
+        document.getElementById('craftStonePick').onclick = () => { if (wood >= 2 && stone >= 3) { wood -= 2; stone -= 3; stonePick++; updateUI(); } };
+        document.getElementById('craftIronAxe').onclick = () => { if (wood >= 3 && iron >= 3) { wood -= 3; iron -= 3; ironAxe++; updateUI(); } };
+        document.getElementById('craftIronPick').onclick = () => { if (wood >= 3 && iron >= 4) { wood -= 3; iron -= 4; ironPick++; updateUI(); } };
+        document.getElementById('craftWall').onclick = () => {
+            if (wood >= 5 && stone >= 2) {
+                wood -= 5; stone -= 2;
+                const wall = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 0.5), new THREE.MeshStandardMaterial({ color: 0xaa8866 }));
+                const dir = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+                wall.position.copy(player.position.clone().add(dir.multiplyScalar(3)));
+                wall.position.y = 1; wall.castShadow = true; wall.receiveShadow = true;
+                scene.add(wall); updateUI();
+            }
+        };
+        document.getElementById('craftCampfire').onclick = () => {
+            if (wood >= 4 && stone >= 1) {
+                wood -= 4; stone -= 1;
+                const fg = new THREE.Group();
+                fg.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.7, 0.2), new THREE.MeshStandardMaterial({ color: 0x8B5A2B })), { position: new THREE.Vector3(0, 0.1, 0) }));
+                fg.add(Object.assign(new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.8), new THREE.MeshStandardMaterial({ color: 0xff5500, emissive: 0x442200 })), { position: new THREE.Vector3(0, 0.7, 0) }));
+                const light = new THREE.PointLight(0xff6600, 1.5, 15);
+                light.position.set(0, 1, 0);
+                fg.add(light);
+                fg.position.copy(player.position.clone().add(new THREE.Vector3(2,0,2)));
+                scene.add(fg); updateUI();
+            }
+        };
+
+        function recruitFollower() {
+            if (gold >= 50 && followers.length < 10) { gold -= 50; createFollower(); updateUI(); }
+        }
+
+        function updateUI() {
+            healthSpan.textContent = Math.floor(health);
+            healthFill.style.width = health + '%';
+            hungerSpan.textContent = hunger;
+            hungerFill.style.width = hunger + '%';
+            woodSpan.textContent = wood;
+            stoneSpan.textContent = stone;
+            ironSpan.textContent = iron;
+            foodSpan.textContent = food;
+            followersAliveSpan.textContent = followers.length;
+            waveSpan.textContent = wave;
+            slot1count.textContent = stoneAxe;
+            slot2count.textContent = stonePick;
+            slot3count.textContent = ironAxe;
+            slot4count.textContent = food;
+        }
+
+        // Game loop
+        let lastTime = performance.now()/1000, hungerTimer = 0, waveTimer = 0, spawnTimer = 0;
+
+        function gameLoop() {
+            const time = performance.now()/1000;
+            const dt = Math.min(0.1, time - lastTime);
+            lastTime = time;
+
+            if (!controls.isLocked) {
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            // Player movement
+            const moveDir = new THREE.Vector3();
+            if (keyState['KeyW']) moveDir.z -= 1;
+            if (keyState['KeyS']) moveDir.z += 1;
+            if (keyState['KeyA']) moveDir.x -= 1;
+            if (keyState['KeyD']) moveDir.x += 1;
+            if (moveDir.lengthSq() > 0) {
+                moveDir.normalize();
+                const camDir = new THREE.Vector3();
+                camera.getWorldDirection(camDir);
+                const forward = new THREE.Vector3(camDir.x, 0, camDir.z).normalize();
+                const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0), forward).normalize();
+                controls.getObject().position.add(
+                    new THREE.Vector3().addVectors(right.multiplyScalar(moveDir.x), forward.multiplyScalar(moveDir.z)).multiplyScalar(6 * dt)
+                );
+            }
+
+            const playerPos = player.position.clone();
+            player.position.copy(controls.getObject().position);
+
+            if (attackPressed) { attack(); attackPressed = false; }
+
+            // Cooldowns
+            [player, ...followers, ...enemies].forEach(u => { if (u.userData.attackCooldown > 0) u.userData.attackCooldown -= dt; });
+
+            // Follower AI
+            followers.forEach(f => {
+                if (f.userData.health <= 0) return;
+                let nearest = null, minDist = Infinity;
+                enemies.forEach(e => {
+                    if (e.userData.health <= 0) return;
+                    const d = e.position.distanceTo(f.position);
+                    if (d < minDist) { minDist = d; nearest = e; }
+                });
+
+                if (nearest && (followerMode === 'attack' || minDist < 5)) {
+                    const dir = new THREE.Vector3().subVectors(nearest.position, f.position).normalize();
+                    f.position.add(dir.multiplyScalar(2 * dt));
+                    f.lookAt(nearest.position);
+                    if (minDist < 1.5 && f.userData.attackCooldown <= 0) {
+                        nearest.userData.health -= f.userData.attackDamage;
+                        nearest.userData.healthBar.style.width = Math.max(0, nearest.userData.health / nearest.userData.maxHealth * 100) + '%';
+                        f.userData.attackCooldown = 1.0;
+                        if (nearest.userData.health <= 0) {
+                            scene.remove(nearest);
+                            enemies = enemies.filter(e => e !== nearest);
+                            gold += 10; updateUI();
+                        }
+                    }
+                } else if (followerMode !== 'hold') {
+                    const offset = new THREE.Vector3(1 + followers.indexOf(f)*0.3, 0, -2).applyQuaternion(camera.quaternion);
+                    const target = playerPos.clone().add(offset);
+                    f.position.add(new THREE.Vector3().subVectors(target, f.position).normalize().multiplyScalar(3 * dt));
+                    f.lookAt(playerPos);
+                }
+                f.userData.healthBar.style.width = Math.max(0, f.userData.health / f.userData.maxHealth * 100) + '%';
+            });
+
+            // Enemy AI
+            enemies.forEach(e => {
+                if (e.userData.health <= 0) return;
+                let target = player, minDist = e.position.distanceTo(player.position);
+                followers.forEach(f => {
+                    if (f.userData.health <= 0) return;
+                    const d = e.position.distanceTo(f.position);
+                    if (d < minDist) { minDist = d; target = f; }
+                });
+
+                e.position.add(new THREE.Vector3().subVectors(target.position, e.position).normalize().multiplyScalar(1.5 * dt));
+                e.lookAt(target.position);
+
+                if (minDist < 1.5 && e.userData.attackCooldown <= 0) {
+                    if (target === player) { health -= e.userData.attackDamage; }
+                    else { target.userData.health -= e.userData.attackDamage; }
+                    e.userData.attackCooldown = 1.0;
+
+                    if (target === player && health <= 0) {
+                        alert('You died! Wave ' + wave);
+                        location.reload();
+                    } else if (target !== player && target.userData.health <= 0) {
+                        scene.remove(target);
+                        followers = followers.filter(f => f !== target);
+                        updateUI();
+                    }
+                }
+                e.userData.healthBar.style.width = Math.max(0, e.userData.health / e.userData.maxHealth * 100) + '%';
+            });
+
+            // Hunger
+            hungerTimer += dt;
+            if (hungerTimer > 8) { hungerTimer = 0; hunger -= 5; if (hunger < 0) hunger = 0; if (hunger === 0) health -= 5; }
+            if (hunger < 50 && food > 0) { food--; hunger = Math.min(100, hunger + 20); }
+
+            // Waves
+            waveTimer += dt;
+            if (waveTimer > 20) { waveTimer = 0; wave++; for (let i=0; i<wave; i++) createEnemy(); }
+
+            // Resource respawn
+            spawnTimer += dt;
+            if (spawnTimer > 15 && resources.length < 30) {
+                spawnTimer = 0;
+                const types = ['tree','rock','iron','berry'];
+                resources.push(new ResourceNode((Math.random()-0.5)*150, (Math.random()-0.5)*150, types[Math.random()*4|0]));
+            }
+
+            // Player health bar
+            player.userData.healthBar.style.width = Math.max(0, health) + '%';
+
+            // Camera
+            if (viewMode === 'third') {
+                const offset = new THREE.Vector3(0, 4, 8).applyQuaternion(camera.quaternion);
+                camera.position.copy(playerPos.clone().add(offset));
+                camera.lookAt(playerPos);
+                player.visible = true;
+            } else {
+                player.visible = false;
+            }
+
+            updateUI();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
