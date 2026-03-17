@@ -5,92 +5,80 @@
     <title>KNIGHT TRIBE ARENA</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #0a0a1a; }
+        #start-screen {
+            position: fixed; top:0; left:0; right:0; bottom:0; z-index: 999;
+            background: linear-gradient(135deg, #0a0a2e, #1a1a4e);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;
+        }
+        #start-screen h1 { font-size: 3rem; color: gold; text-shadow: 2px 2px 0 red; margin-bottom: 0.5rem; }
+        #start-screen p { font-size: 1.2rem; opacity: 0.7; margin-bottom: 2rem; }
+        #start-btn {
+            padding: 1rem 3rem; font-size: 1.3rem; font-weight: bold; background: gold; color: #1a1a2e;
+            border: none; border-radius: 30px; cursor: pointer; transition: 0.2s;
+        }
+        #start-btn:hover { transform: scale(1.1); box-shadow: 0 0 30px rgba(255,215,0,0.5); }
         #ui {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            background: rgba(0,0,0,0.7);
-            padding: 15px;
-            border-radius: 15px;
-            border: 2px solid gold;
-            z-index: 100;
-            backdrop-filter: blur(3px);
-            pointer-events: none;
+            position: absolute; top: 20px; left: 20px; color: white;
+            background: rgba(0,0,0,0.7); padding: 15px; border-radius: 15px;
+            border: 2px solid gold; z-index: 100; backdrop-filter: blur(3px); pointer-events: none;
         }
-        #health-bar {
-            width: 200px;
-            height: 15px;
-            background: #333;
-            border: 1px solid #888;
-            margin: 5px 0;
-        }
-        #health-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #f00, #f66); }
+        #health-bar, #xp-bar { width: 200px; height: 12px; background: #333; border: 1px solid #888; margin: 3px 0; border-radius: 6px; overflow: hidden; }
+        #health-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #f00, #f66); transition: width 0.2s; }
+        #xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00f, #66f); transition: width 0.2s; }
         #shop {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 15px;
-            border-radius: 15px;
-            border: 2px solid cyan;
-            z-index: 100;
-            width: 200px;
+            position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7);
+            color: white; padding: 15px; border-radius: 15px; border: 2px solid cyan;
+            z-index: 100; width: 220px; pointer-events: all;
         }
         .upgrade {
-            background: #3a4a3a;
-            margin: 5px 0;
-            padding: 8px;
-            border-radius: 5px;
-            cursor: pointer;
-            border: 1px solid #8b6e4b;
-            transition: 0.1s;
+            background: #3a4a3a; margin: 5px 0; padding: 8px; border-radius: 5px;
+            cursor: pointer; border: 1px solid #8b6e4b; transition: 0.1s; font-size: 13px;
         }
-        .upgrade:hover {
-            background: #4a5a4a;
-            border-color: gold;
-        }
+        .upgrade:hover { background: #4a5a4a; border-color: gold; }
+        .upgrade.cant-afford { opacity: 0.4; cursor: not-allowed; }
         #commands {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            color: white;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 14px;
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            color: white; background: rgba(0,0,0,0.5); padding: 8px 15px;
+            border-radius: 10px; font-size: 13px; pointer-events: none;
         }
-        #wave {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: gold;
-            font-size: 48px;
-            text-shadow: 2px 2px 0 red;
-            opacity: 0;
-            transition: 0.3s;
-            pointer-events: none;
+        #wave-banner {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: gold; font-size: 52px; font-weight: bold;
+            text-shadow: 3px 3px 0 red, 0 0 20px rgba(255,215,0,0.5);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200;
+        }
+        #kill-count {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            color: #ff6666; font-size: 18px; font-weight: bold; pointer-events: none; z-index: 100;
         }
     </style>
 </head>
 <body>
+    <div id="start-screen">
+        <h1>⚔️ KNIGHT TRIBE ARENA</h1>
+        <p>Survive endless waves of enemies!</p>
+        <div style="margin-bottom:1.5rem;color:#aaa;font-size:14px;">
+            WASD move • Auto-attack nearby enemies • Collect coins • Buy upgrades
+        </div>
+        <button id="start-btn">CLICK TO PLAY</button>
+    </div>
     <div id="ui">
-        ❤️ <span id="health">100</span> | ⚔️ Damage <span id="damage">10</span> | 🏹 Speed <span id="speed">5</span> | 👥 Followers <span id="followers">0</span>/5 | 💰 <span id="coins">0</span>
+        <div>❤️ <span id="health">100</span>/<span id="maxHealth">100</span></div>
         <div id="health-bar"><div id="health-fill"></div></div>
+        <div style="margin-top:4px;">⚔️ DMG <span id="damage">10</span> | 🏹 SPD <span id="speed">5</span> | 👥 <span id="followers">3</span>/5 | 💰 <span id="coins">0</span></div>
+        <div style="margin-top:4px;">☠️ Kills: <span id="kills">0</span> | 🌊 Wave <span id="waveNum">1</span></div>
     </div>
     <div id="shop">
-        <h3 style="margin:0 0 10px;">UPGRADES</h3>
-        <div class="upgrade" id="upgradeHp">❤️ +20 Health (30💰)</div>
-        <div class="upgrade" id="upgradeDmg">⚔️ +5 Damage (40💰)</div>
-        <div class="upgrade" id="upgradeSpd">🏹 +1 Speed (40💰)</div>
-        <div class="upgrade" id="upgradeFollower">👥 +1 Follower (50💰)</div>
+        <h3 style="margin:0 0 8px;color:cyan;">⬆️ UPGRADES</h3>
+        <div class="upgrade" id="upgradeHp">❤️ +30 Health <span style="float:right;color:gold;">30💰</span></div>
+        <div class="upgrade" id="upgradeDmg">⚔️ +5 Damage <span style="float:right;color:gold;">40💰</span></div>
+        <div class="upgrade" id="upgradeSpd">🏹 +1 Speed <span style="float:right;color:gold;">40💰</span></div>
+        <div class="upgrade" id="upgradeFollower">👥 +1 Follower <span style="float:right;color:gold;">50💰</span></div>
+        <div class="upgrade" id="upgradeHeal">💚 Full Heal <span style="float:right;color:gold;">20💰</span></div>
     </div>
-    <div id="commands">
-        WASD move • Auto attack • Coins drop from enemies
-    </div>
-    <div id="wave">WAVE 1</div>
+    <div id="commands">WASD move • Auto attack • Walk over 💰 to collect</div>
+    <div id="wave-banner">WAVE 1</div>
+    <div id="kill-count"></div>
 
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js" } }
@@ -98,15 +86,14 @@
 
     <script type="module">
         import * as THREE from 'three';
-        import { PointerLockControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/PointerLockControls.js';
         import { CSS2DRenderer, CSS2DObject } from 'https://unpkg.com/three@0.128.0/examples/jsm/renderers/CSS2DRenderer.js';
 
+        // --- Setup ---
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x1a1a2e);
-        scene.fog = new THREE.Fog(0x1a1a2e, 30, 100);
+        scene.fog = new THREE.FogExp2(0x1a1a2e, 0.015);
 
-        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 15, 25);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -117,393 +104,419 @@
         const labelRenderer = new CSS2DRenderer();
         labelRenderer.setSize(window.innerWidth, window.innerHeight);
         labelRenderer.domElement.style.pointerEvents = 'none';
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0';
         document.body.appendChild(labelRenderer.domElement);
 
-        const controls = new PointerLockControls(camera, document.body);
-        scene.add(controls.getObject());
+        // UI refs
+        const uiRefs = {
+            health: document.getElementById('health'),
+            maxHealth: document.getElementById('maxHealth'),
+            healthFill: document.getElementById('health-fill'),
+            damage: document.getElementById('damage'),
+            speed: document.getElementById('speed'),
+            followers: document.getElementById('followers'),
+            coins: document.getElementById('coins'),
+            kills: document.getElementById('kills'),
+            waveNum: document.getElementById('waveNum'),
+            waveBanner: document.getElementById('wave-banner'),
+            killCount: document.getElementById('kill-count'),
+        };
 
-        const healthSpan = document.getElementById('health');
-        const healthFill = document.getElementById('health-fill');
-        const damageSpan = document.getElementById('damage');
-        const speedSpan = document.getElementById('speed');
-        const followersSpan = document.getElementById('followers');
-        const coinsSpan = document.getElementById('coins');
-        const waveDiv = document.getElementById('wave');
-
-        // Lighting
-        scene.add(new THREE.AmbientLight(0x404060));
+        // --- Lighting ---
+        scene.add(new THREE.AmbientLight(0x404060, 0.8));
         const dirLight = new THREE.DirectionalLight(0xffeedd, 1.2);
-        dirLight.position.set(10, 30, 10);
+        dirLight.position.set(15, 30, 15);
         dirLight.castShadow = true;
         dirLight.shadow.mapSize.set(1024, 1024);
+        dirLight.shadow.camera.near = 1;
+        dirLight.shadow.camera.far = 80;
+        dirLight.shadow.camera.left = -40;
+        dirLight.shadow.camera.right = 40;
+        dirLight.shadow.camera.top = 40;
+        dirLight.shadow.camera.bottom = -40;
         scene.add(dirLight);
-        const pointLight = new THREE.PointLight(0xff00ff, 1, 30);
-        pointLight.position.set(0, 10, 0);
-        scene.add(pointLight);
+        const arenaLight = new THREE.PointLight(0xff00ff, 0.8, 40);
+        arenaLight.position.set(0, 10, 0);
+        scene.add(arenaLight);
 
-        // Ground
-        scene.add(new THREE.GridHelper(60, 20, 0xff00ff, 0x00ffff));
-        const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(60, 60),
-            new THREE.MeshStandardMaterial({ color: 0x2a2a4a, side: THREE.DoubleSide })
-        );
-        ground.rotation.x = -Math.PI/2;
-        ground.position.y = -0.2;
-        ground.receiveShadow = true;
-        scene.add(ground);
+        // --- Arena ---
+        const ARENA_RADIUS = 28;
+        // Floor
+        const floorGeo = new THREE.CircleGeometry(ARENA_RADIUS, 64);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x2a2a4a, roughness: 0.8 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+        // Grid
+        const gridHelper = new THREE.GridHelper(ARENA_RADIUS * 2, 20, 0xff00ff, 0x00ffff);
+        gridHelper.position.y = 0.01;
+        scene.add(gridHelper);
+        // Arena walls (ring)
+        const wallGeo = new THREE.TorusGeometry(ARENA_RADIUS, 0.5, 8, 64);
+        const wallMat = new THREE.MeshStandardMaterial({ color: 0x8866aa, emissive: 0x221133 });
+        const wall = new THREE.Mesh(wallGeo, wallMat);
+        wall.rotation.x = Math.PI / 2;
+        wall.position.y = 0.5;
+        scene.add(wall);
 
-        // Player
-        const player = new THREE.Mesh(
-            new THREE.SphereGeometry(1, 16),
-            new THREE.MeshStandardMaterial({ color: 0x3399ff, emissive: 0x114488 })
-        );
+        // --- Player ---
+        const playerMat = new THREE.MeshStandardMaterial({ color: 0x3399ff, emissive: 0x114488 });
+        const player = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16), playerMat);
         player.castShadow = true;
-        player.position.y = 1;
+        player.position.y = 0.8;
         scene.add(player);
-
         // Sword
         const sword = new THREE.Mesh(
-            new THREE.ConeGeometry(0.2, 2, 6),
-            new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x666666 })
+            new THREE.BoxGeometry(0.15, 1.5, 0.08),
+            new THREE.MeshStandardMaterial({ color: 0xdddddd, emissive: 0x333333, metalness: 0.6 })
         );
-        sword.position.set(1.2, 1, 0.5);
-        sword.rotation.z = -0.3;
+        sword.position.set(1, 0.5, 0);
         player.add(sword);
-
         // Eyes
-        const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const pupilMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
-        [[-0.3, 0.3]].forEach(() => {
-            [-0.3, 0.3].forEach(x => {
-                const eye = new THREE.Mesh(new THREE.SphereGeometry(0.2), eyeMat);
-                eye.position.set(x, 1.2, 1);
-                player.add(eye);
-                const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.1), pupilMat);
-                pupil.position.set(x, 1.2, 1.2);
-                player.add(pupil);
-            });
+        [-0.25, 0.25].forEach(x => {
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.15), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+            eye.position.set(x, 0.3, 0.7);
+            player.add(eye);
+            const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+            pupil.position.set(x, 0.3, 0.8);
+            player.add(pupil);
         });
 
-        // Game state
-        let health = 100, maxHealth = 100, damage = 10, speed = 5, coins = 0, wave = 1;
-        let playerAttackCooldown = 0;
+        // --- Game State ---
+        let gs = {
+            health: 100, maxHealth: 100, damage: 10, speed: 5,
+            coins: 0, wave: 1, kills: 0, totalKills: 0,
+            playerAttackCD: 0, gameStarted: false
+        };
 
-        // Followers
-        let followers = [];
+        // --- Entities ---
+        let followers = [], enemies = [], coinPickups = [];
+
+        function addHealthBar(mesh, color, yOff) {
+            const div = document.createElement('div');
+            div.style.cssText = 'width:32px;height:4px;background:#222;border:1px solid #555;border-radius:2px;overflow:hidden;';
+            const fill = document.createElement('div');
+            fill.style.cssText = 'width:100%;height:100%;background:' + color + ';transition:width 0.15s;';
+            div.appendChild(fill);
+            const label = new CSS2DObject(div);
+            label.position.set(0, yOff || 1.5, 0);
+            mesh.add(label);
+            mesh.userData.healthBar = fill;
+        }
+
         function createFollower() {
             const f = new THREE.Mesh(
-                new THREE.SphereGeometry(0.8, 12),
-                new THREE.MeshStandardMaterial({ color: 0x33aa33, emissive: 0x224422 })
+                new THREE.SphereGeometry(0.6, 12),
+                new THREE.MeshStandardMaterial({ color: 0x33aa33, emissive: 0x113311 })
             );
             f.castShadow = true;
-            f.userData = { health: 50, maxHealth: 50, attackCooldown: 0, attackDamage: 8 };
+            f.userData = { health: 50, maxHealth: 50, attackCD: 0, dmg: 8 };
             scene.add(f);
-            // Health bar
-            const div = document.createElement('div');
-            div.style.cssText = 'width:30px;height:4px;background:#333;border:1px solid #555;';
-            const fill = document.createElement('div');
-            fill.style.cssText = 'width:100%;height:100%;background:#0f0;';
-            div.appendChild(fill);
-            const label = new CSS2DObject(div);
-            label.position.set(0, 1.5, 0);
-            f.add(label);
-            f.userData.healthBar = fill;
+            addHealthBar(f, '#0f0', 1.2);
             return f;
         }
-        for (let i = 0; i < 3; i++) {
-            const f = createFollower();
-            f.position.set(2 + i * 1.5, 1, 2);
-            followers.push(f);
-        }
 
-        // Enemies
-        let enemies = [];
         function createEnemy(hp, dmg, color, size) {
             const e = new THREE.Mesh(
-                new THREE.SphereGeometry(size || 0.9, 10),
-                new THREE.MeshStandardMaterial({ color: color || 0xff3333, emissive: 0x441111 })
+                new THREE.SphereGeometry(size || 0.7, 10),
+                new THREE.MeshStandardMaterial({ color: color || 0xff3333, emissive: 0x220000 })
             );
             e.castShadow = true;
-            e.userData = { health: hp || 30, maxHealth: hp || 30, attackCooldown: 0, attackDamage: dmg || 8 };
+            e.userData = { health: hp, maxHealth: hp, attackCD: 0, dmg: dmg, speed: 1.5 + gs.wave * 0.08 };
             scene.add(e);
-            // Health bar
-            const div = document.createElement('div');
-            div.style.cssText = 'width:30px;height:4px;background:#333;border:1px solid #555;';
-            const fill = document.createElement('div');
-            fill.style.cssText = 'width:100%;height:100%;background:#f00;';
-            div.appendChild(fill);
-            const label = new CSS2DObject(div);
-            label.position.set(0, 1.8, 0);
-            e.add(label);
-            e.userData.healthBar = fill;
+            addHealthBar(e, '#f00', (size || 0.7) + 0.6);
             return e;
         }
 
-        function spawnWave() {
-            const count = 3 + wave * 2;
-            for (let i = 0; i < count; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const dist = 20 + Math.random() * 10;
-                // Stronger enemies at higher waves
-                const hp = 30 + wave * 5;
-                const dmg = 5 + wave;
-                const size = 0.7 + Math.min(wave * 0.05, 0.5);
-                const color = wave > 5 ? 0xff6600 : (wave > 3 ? 0xcc00cc : 0xff3333);
-                const e = createEnemy(hp, dmg, color, size);
-                e.position.set(
-                    player.position.x + Math.cos(angle) * dist,
-                    1,
-                    player.position.z + Math.sin(angle) * dist
-                );
-                enemies.push(e);
-            }
-            // Boss every 5 waves
-            if (wave % 5 === 0) {
-                const angle = Math.random() * Math.PI * 2;
-                const boss = createEnemy(100 + wave * 20, 15 + wave, 0xffaa00, 2);
-                boss.position.set(
-                    player.position.x + Math.cos(angle) * 25,
-                    2,
-                    player.position.z + Math.sin(angle) * 25
-                );
-                enemies.push(boss);
-            }
-            waveDiv.textContent = 'WAVE ' + wave;
-            waveDiv.style.opacity = 1;
-            setTimeout(() => waveDiv.style.opacity = 0, 1500);
+        // Init followers
+        for (let i = 0; i < 3; i++) {
+            const f = createFollower();
+            const a = (i / 3) * Math.PI * 2;
+            f.position.set(Math.cos(a) * 3, 0.6, Math.sin(a) * 3);
+            followers.push(f);
         }
 
-        // Spawn initial wave
-        spawnWave();
+        function spawnWave() {
+            const count = 4 + gs.wave * 2;
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const hp = 25 + gs.wave * 5;
+                const dmg = 4 + gs.wave;
+                const size = 0.6 + Math.min(gs.wave * 0.03, 0.4);
+                const color = gs.wave > 6 ? 0xff6600 : (gs.wave > 3 ? 0xcc00cc : 0xff3333);
+                const e = createEnemy(hp, dmg, color, size);
+                e.position.set(Math.cos(angle) * (ARENA_RADIUS - 2), size, Math.sin(angle) * (ARENA_RADIUS - 2));
+                enemies.push(e);
+            }
+            if (gs.wave % 5 === 0) {
+                const a = Math.random() * Math.PI * 2;
+                const boss = createEnemy(80 + gs.wave * 15, 10 + gs.wave, 0xffaa00, 1.8);
+                boss.position.set(Math.cos(a) * (ARENA_RADIUS - 3), 1.8, Math.sin(a) * (ARENA_RADIUS - 3));
+                boss.userData.speed = 1.0;
+                enemies.push(boss);
+            }
+            uiRefs.waveBanner.textContent = 'WAVE ' + gs.wave;
+            uiRefs.waveBanner.style.opacity = 1;
+            setTimeout(() => uiRefs.waveBanner.style.opacity = 0, 1500);
+        }
 
-        // Coin pickups
-        let coinPickups = [];
         function dropCoin(pos) {
             const coin = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.3, 0.3, 0.1, 8),
-                new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x443300, metalness: 0.8 })
+                new THREE.CylinderGeometry(0.25, 0.25, 0.08, 8),
+                new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x332200, metalness: 0.8 })
             );
-            coin.position.copy(pos);
-            coin.position.y = 0.5;
+            coin.position.copy(pos); coin.position.y = 0.4;
             coin.rotation.x = Math.PI / 2;
+            coin.userData.life = 15; // despawn after 15s
             scene.add(coin);
             coinPickups.push(coin);
         }
 
-        // Upgrades
-        document.getElementById('upgradeHp').onclick = () => {
-            if (coins >= 30) { coins -= 30; maxHealth += 20; health = Math.min(health + 20, maxHealth); updateUI(); }
-        };
-        document.getElementById('upgradeDmg').onclick = () => {
-            if (coins >= 40) { coins -= 40; damage += 5; updateUI(); }
-        };
-        document.getElementById('upgradeSpd').onclick = () => {
-            if (coins >= 40) { coins -= 40; speed += 1; updateUI(); }
-        };
-        document.getElementById('upgradeFollower').onclick = () => {
-            if (coins >= 50 && followers.length < 5) {
-                coins -= 50;
-                const f = createFollower();
-                f.position.set(player.position.x + 2, 1, player.position.z + 2);
-                followers.push(f);
-                updateUI();
-            }
-        };
-
-        function updateUI() {
-            healthSpan.textContent = Math.floor(health);
-            healthFill.style.width = (health / maxHealth * 100) + '%';
-            damageSpan.textContent = damage;
-            speedSpan.textContent = speed;
-            followersSpan.textContent = followers.length;
-            coinsSpan.textContent = coins;
-        }
-
-        // Input
-        const keyState = {};
-        document.addEventListener('keydown', e => { keyState[e.code] = true; });
-        document.addEventListener('keyup', e => { keyState[e.code] = false; });
-        renderer.domElement.addEventListener('click', () => controls.lock());
-
-        // Damage flash
         function flashDamage(mesh) {
+            if (!mesh.material) return;
             const orig = mesh.material.emissive.getHex();
             mesh.material.emissive.setHex(0xffffff);
-            setTimeout(() => mesh.material.emissive.setHex(orig), 80);
+            setTimeout(() => { if (mesh.material) mesh.material.emissive.setHex(orig); }, 80);
         }
 
-        // Game loop
+        function clampToArena(pos) {
+            const dist = Math.sqrt(pos.x * pos.x + pos.z * pos.z);
+            if (dist > ARENA_RADIUS - 1) {
+                const scale = (ARENA_RADIUS - 1) / dist;
+                pos.x *= scale;
+                pos.z *= scale;
+            }
+        }
+
+        // --- Upgrades ---
+        function tryUpgrade(id) {
+            const costs = { Hp: 30, Dmg: 40, Spd: 40, Follower: 50, Heal: 20 };
+            const cost = costs[id];
+            if (gs.coins < cost) return;
+            if (id === 'Follower' && followers.length >= 5) return;
+            gs.coins -= cost;
+            if (id === 'Hp') { gs.maxHealth += 30; gs.health = Math.min(gs.health + 30, gs.maxHealth); }
+            if (id === 'Dmg') gs.damage += 5;
+            if (id === 'Spd') gs.speed += 1;
+            if (id === 'Heal') gs.health = gs.maxHealth;
+            if (id === 'Follower') {
+                const f = createFollower();
+                f.position.set(player.position.x + 2, 0.6, player.position.z + 2);
+                followers.push(f);
+            }
+            updateUI();
+        }
+        document.getElementById('upgradeHp').onclick = () => tryUpgrade('Hp');
+        document.getElementById('upgradeDmg').onclick = () => tryUpgrade('Dmg');
+        document.getElementById('upgradeSpd').onclick = () => tryUpgrade('Spd');
+        document.getElementById('upgradeFollower').onclick = () => tryUpgrade('Follower');
+        document.getElementById('upgradeHeal').onclick = () => tryUpgrade('Heal');
+
+        function updateUI() {
+            uiRefs.health.textContent = Math.floor(gs.health);
+            uiRefs.maxHealth.textContent = gs.maxHealth;
+            uiRefs.healthFill.style.width = (gs.health / gs.maxHealth * 100) + '%';
+            uiRefs.damage.textContent = gs.damage;
+            uiRefs.speed.textContent = gs.speed;
+            uiRefs.followers.textContent = followers.length;
+            uiRefs.coins.textContent = gs.coins;
+            uiRefs.kills.textContent = gs.totalKills;
+            uiRefs.waveNum.textContent = gs.wave;
+            // Grey out unaffordable upgrades
+            document.getElementById('upgradeHp').classList.toggle('cant-afford', gs.coins < 30);
+            document.getElementById('upgradeDmg').classList.toggle('cant-afford', gs.coins < 40);
+            document.getElementById('upgradeSpd').classList.toggle('cant-afford', gs.coins < 40);
+            document.getElementById('upgradeFollower').classList.toggle('cant-afford', gs.coins < 50 || followers.length >= 5);
+            document.getElementById('upgradeHeal').classList.toggle('cant-afford', gs.coins < 20 || gs.health >= gs.maxHealth);
+        }
+
+        // --- Input ---
+        const keys = {};
+        document.addEventListener('keydown', e => { keys[e.code] = true; });
+        document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+        // --- Start ---
+        document.getElementById('start-btn').onclick = () => {
+            document.getElementById('start-screen').style.display = 'none';
+            gs.gameStarted = true;
+            spawnWave();
+        };
+
+        // --- Game Loop ---
         let lastTime = performance.now() / 1000;
-        let waveTimer = 0;
+        let waveDelay = 0;
+        const playerDir = new THREE.Vector3(0, 0, -1);
 
         function gameLoop() {
             const time = performance.now() / 1000;
-            const dt = Math.min(0.1, time - lastTime);
+            const dt = Math.min(0.05, time - lastTime);
             lastTime = time;
 
-            if (!controls.isLocked) {
+            if (!gs.gameStarted) {
                 renderer.render(scene, camera);
-                labelRenderer.render(scene, camera);
                 requestAnimationFrame(gameLoop);
                 return;
             }
 
-            // Player movement
-            const moveDir = new THREE.Vector3();
-            if (keyState['KeyW']) moveDir.z -= 1;
-            if (keyState['KeyS']) moveDir.z += 1;
-            if (keyState['KeyA']) moveDir.x -= 1;
-            if (keyState['KeyD']) moveDir.x += 1;
-            if (moveDir.lengthSq() > 0) {
-                moveDir.normalize();
-                const camDir = new THREE.Vector3();
-                camera.getWorldDirection(camDir);
-                const forward = new THREE.Vector3(camDir.x, 0, camDir.z).normalize();
-                const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
-                controls.getObject().position.add(
-                    new THREE.Vector3().addVectors(
-                        right.multiplyScalar(moveDir.x),
-                        forward.multiplyScalar(moveDir.z)
-                    ).multiplyScalar(speed * dt)
-                );
+            // --- Player Movement ---
+            const move = new THREE.Vector3();
+            if (keys['KeyW']) move.z -= 1;
+            if (keys['KeyS']) move.z += 1;
+            if (keys['KeyA']) move.x -= 1;
+            if (keys['KeyD']) move.x += 1;
+            if (move.lengthSq() > 0) {
+                move.normalize().multiplyScalar(gs.speed * dt);
+                player.position.add(move);
+                playerDir.copy(move).normalize();
+                player.lookAt(player.position.clone().add(playerDir));
             }
+            clampToArena(player.position);
+            player.position.y = 0.8 + Math.sin(time * 4) * 0.05;
 
-            player.position.copy(controls.getObject().position);
-            player.position.y = 1;
+            // --- Cooldowns ---
+            gs.playerAttackCD -= dt;
+            followers.forEach(f => f.userData.attackCD -= dt);
+            enemies.forEach(e => e.userData.attackCD -= dt);
 
-            // Cooldowns
-            playerAttackCooldown -= dt;
-            followers.forEach(f => { f.userData.attackCooldown -= dt; });
-            enemies.forEach(e => { e.userData.attackCooldown -= dt; });
-
-            // Player auto-attack nearest enemy
-            if (playerAttackCooldown <= 0) {
-                let nearest = null, minDist = 4;
-                enemies.forEach(e => {
+            // --- Player Auto Attack ---
+            if (gs.playerAttackCD <= 0) {
+                let nearest = null, bestDist = 3.5;
+                for (const e of enemies) {
                     const d = player.position.distanceTo(e.position);
-                    if (d < minDist) { minDist = d; nearest = e; }
-                });
+                    if (d < bestDist) { bestDist = d; nearest = e; }
+                }
                 if (nearest) {
-                    nearest.userData.health -= damage;
+                    nearest.userData.health -= gs.damage;
                     nearest.userData.healthBar.style.width = Math.max(0, nearest.userData.health / nearest.userData.maxHealth * 100) + '%';
                     flashDamage(nearest);
-                    playerAttackCooldown = 0.5;
-                    // Swing sword animation
-                    sword.rotation.x = -1;
-                    setTimeout(() => { sword.rotation.x = 0; }, 150);
+                    gs.playerAttackCD = 0.4;
+                    sword.rotation.x = -1.2;
+                    setTimeout(() => sword.rotation.x = 0, 120);
                 }
             }
 
-            // Follower AI
-            followers.forEach(f => {
-                if (f.userData.health <= 0) return;
-                let nearest = null, minDist = Infinity;
-                enemies.forEach(e => {
+            // --- Follower AI ---
+            for (const f of followers) {
+                if (f.userData.health <= 0) continue;
+                let nearest = null, bestDist = 20;
+                for (const e of enemies) {
                     const d = e.position.distanceTo(f.position);
-                    if (d < minDist) { minDist = d; nearest = e; }
-                });
-                if (nearest && minDist < 15) {
+                    if (d < bestDist) { bestDist = d; nearest = e; }
+                }
+                if (nearest) {
                     const dir = new THREE.Vector3().subVectors(nearest.position, f.position).normalize();
-                    f.position.add(dir.multiplyScalar(3 * dt));
+                    f.position.add(dir.multiplyScalar(3.5 * dt));
                     f.lookAt(nearest.position);
-                    if (minDist < 2 && f.userData.attackCooldown <= 0) {
-                        nearest.userData.health -= f.userData.attackDamage;
+                    if (bestDist < 1.8 && f.userData.attackCD <= 0) {
+                        nearest.userData.health -= f.userData.dmg;
                         nearest.userData.healthBar.style.width = Math.max(0, nearest.userData.health / nearest.userData.maxHealth * 100) + '%';
                         flashDamage(nearest);
-                        f.userData.attackCooldown = 0.8;
+                        f.userData.attackCD = 0.7;
                     }
                 } else {
-                    const dir = new THREE.Vector3().subVectors(player.position, f.position).normalize();
-                    f.position.add(dir.multiplyScalar(4 * dt));
+                    // Follow player
+                    const toPlayer = new THREE.Vector3().subVectors(player.position, f.position);
+                    if (toPlayer.length() > 3) {
+                        f.position.add(toPlayer.normalize().multiplyScalar(4 * dt));
+                    }
                 }
+                clampToArena(f.position);
                 f.userData.healthBar.style.width = Math.max(0, f.userData.health / f.userData.maxHealth * 100) + '%';
-            });
+            }
 
-            // Enemy AI
-            enemies.forEach(e => {
-                if (e.userData.health <= 0) return;
-                // Target nearest: player or follower
-                let target = player, minDist = e.position.distanceTo(player.position);
-                followers.forEach(f => {
-                    if (f.userData.health <= 0) return;
+            // --- Enemy AI ---
+            for (const e of enemies) {
+                if (e.userData.health <= 0) continue;
+                // Find nearest target
+                let target = player, bestDist = e.position.distanceTo(player.position);
+                for (const f of followers) {
+                    if (f.userData.health <= 0) continue;
                     const d = e.position.distanceTo(f.position);
-                    if (d < minDist) { minDist = d; target = f; }
-                });
-
+                    if (d < bestDist) { bestDist = d; target = f; }
+                }
                 const dir = new THREE.Vector3().subVectors(target.position, e.position).normalize();
-                e.position.add(dir.multiplyScalar((1.5 + wave * 0.1) * dt));
+                e.position.add(dir.multiplyScalar(e.userData.speed * dt));
                 e.lookAt(target.position);
+                clampToArena(e.position);
 
-                if (minDist < 2 && e.userData.attackCooldown <= 0) {
+                const attackDist = target === player ? 1.8 : 1.5;
+                if (bestDist < attackDist && e.userData.attackCD <= 0) {
                     if (target === player) {
-                        health -= e.userData.attackDamage;
+                        gs.health -= e.userData.dmg;
                         flashDamage(player);
                     } else {
-                        target.userData.health -= e.userData.attackDamage;
+                        target.userData.health -= e.userData.dmg;
                         flashDamage(target);
                     }
-                    e.userData.attackCooldown = 1.0;
+                    e.userData.attackCD = 0.8;
                 }
-            });
+                e.userData.healthBar.style.width = Math.max(0, e.userData.health / e.userData.maxHealth * 100) + '%';
+            }
 
-            // Remove dead enemies, drop coins
+            // --- Remove dead ---
             enemies = enemies.filter(e => {
                 if (e.userData.health <= 0) {
                     dropCoin(e.position.clone());
+                    gs.totalKills++;
                     scene.remove(e);
                     return false;
                 }
                 return true;
             });
-
-            // Remove dead followers
             followers = followers.filter(f => {
-                if (f.userData.health <= 0) {
-                    scene.remove(f);
-                    return false;
-                }
+                if (f.userData.health <= 0) { scene.remove(f); return false; }
                 return true;
             });
 
-            // Coin pickup
+            // --- Coins ---
             coinPickups = coinPickups.filter(c => {
-                c.rotation.z += dt * 3; // spin
+                c.rotation.z += dt * 4;
+                c.position.y = 0.4 + Math.sin(time * 3 + c.id) * 0.1;
+                c.userData.life -= dt;
+                if (c.userData.life <= 0) { scene.remove(c); return false; }
                 if (player.position.distanceTo(c.position) < 2) {
-                    coins += 5 + wave;
+                    gs.coins += 4 + gs.wave;
                     scene.remove(c);
                     return false;
                 }
                 return true;
             });
 
-            // Next wave when all enemies dead
+            // --- Next Wave ---
             if (enemies.length === 0) {
-                waveTimer += dt;
-                if (waveTimer > 2) {
-                    waveTimer = 0;
-                    wave++;
-                    // Heal between waves
-                    health = Math.min(health + 10, maxHealth);
+                waveDelay += dt;
+                if (waveDelay > 2.5) {
+                    waveDelay = 0;
+                    gs.wave++;
+                    gs.health = Math.min(gs.health + 15, gs.maxHealth);
+                    // Heal followers too
+                    followers.forEach(f => f.userData.health = Math.min(f.userData.health + 10, f.userData.maxHealth));
                     spawnWave();
                 }
+            } else {
+                waveDelay = 0;
             }
 
-            // Player death
-            if (health <= 0) {
-                alert('GAME OVER! You reached Wave ' + wave + ' with ' + coins + ' coins!');
-                location.reload();
+            // --- Death ---
+            if (gs.health <= 0) {
+                gs.gameStarted = false;
+                setTimeout(() => {
+                    alert('GAME OVER!\nWave: ' + gs.wave + '\nKills: ' + gs.totalKills + '\nCoins: ' + gs.coins);
+                    location.reload();
+                }, 100);
             }
 
-            // Floating light follows player
-            pointLight.position.set(player.position.x, 10, player.position.z);
-
-            // Camera follow (smooth third person)
-            const camTarget = player.position.clone().add(new THREE.Vector3(0, 12, 18));
-            camera.position.lerp(camTarget, 0.05);
+            // --- Camera (top-down angled, follows player) ---
+            const camTarget = new THREE.Vector3(player.position.x, 14, player.position.z + 12);
+            camera.position.lerp(camTarget, 0.08);
             camera.lookAt(player.position);
 
-            // Bob player
-            player.position.y = 1 + Math.sin(time * 3) * 0.1;
+            // --- Light follows ---
+            dirLight.position.set(player.position.x + 15, 30, player.position.z + 15);
+            dirLight.target.position.copy(player.position);
+            arenaLight.position.set(player.position.x, 8, player.position.z);
 
             updateUI();
             renderer.render(scene, camera);
