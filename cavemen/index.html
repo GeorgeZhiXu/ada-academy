@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CAVEMEN TRIBE – SURVIVAL</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+            user-select: none;
+        }
+        body {
+            background: #1a2a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            width: 800px;
+            max-width: 100%;
+            background: #2a3a2a;
+            border: 4px solid #8b6e4b;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 30px #2a1a0a;
+            color: #eeddbb;
+        }
+        h1 {
+            text-align: center;
+            margin: 0 0 10px;
+            font-size: 36px;
+            text-shadow: 3px 3px 0 #5a3a1a;
+            letter-spacing: 2px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            background: #1e2a1e;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #6b4e2b;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            background: #2a3a2a;
+            padding: 5px 10px;
+            border-radius: 30px;
+            border: 1px solid #8b6e4b;
+        }
+        .stat-value {
+            color: #ffd966;
+        }
+        .people-panel {
+            background: #1e2a1e;
+            border: 2px solid #6b4e2b;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .people-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .people-assign {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-around;
+        }
+        .task {
+            background: #2a3a2a;
+            border: 2px solid #8b6e4b;
+            border-radius: 40px;
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 140px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .task:hover {
+            background: #3a4a3a;
+            border-color: #c69c6d;
+        }
+        .task-name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .task-count {
+            font-size: 28px;
+            color: #ffd966;
+        }
+        .task-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        .task-btn {
+            background: #6b4e2b;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 #3a2a1a;
+        }
+        .task-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+        .next-day-btn {
+            display: block;
+            width: 100%;
+            background: #4a6a2a;
+            color: #eeddbb;
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #2a4a1a;
+            letter-spacing: 2px;
+        }
+        .next-day-btn:hover {
+            background: #5a7a3a;
+        }
+        .next-day-btn:active {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+        }
+        .craft-panel {
+            background: #1e2a1e;
+            border: 2px solid #6b4e2b;
+            border-radius: 15px;
+            padding: 15px;
+        }
+        .craft-header {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .craft-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-around;
+        }
+        .craft-item {
+            background: #2a3a2a;
+            border: 2px solid #8b6e4b;
+            border-radius: 30px;
+            padding: 10px 20px;
+            min-width: 160px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .craft-item:hover {
+            background: #3a4a3a;
+            border-color: #c69c6d;
+        }
+        .craft-item-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .craft-item-cost {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .craft-item-have {
+            font-size: 20px;
+            color: #ffd966;
+            margin: 5px 0;
+        }
+        .message-log {
+            margin-top: 20px;
+            background: #1a1a1a;
+            border: 2px solid #5a3a1a;
+            border-radius: 10px;
+            padding: 10px;
+            height: 80px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: #ccc;
+        }
+        .day-progress {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .reset-btn {
+            background: #8b3a3a;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            border-bottom: 4px solid #4a1a1a;
+        }
+        .reset-btn:active {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>⚡ CAVEMEN TRIBE ⚡</h1>
+
+        <div class="day-progress">
+            Day <span id="day">1</span>  |  Population: <span id="pop">10</span>/10
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">🍖 Food: <span class="stat-value" id="food">0</span></div>
+            <div class="stat-item">🪵 Wood: <span class="stat-value" id="wood">0</span></div>
+            <div class="stat-item">🪨 Stone: <span class="stat-value" id="stone">0</span></div>
+            <div class="stat-item">⛓️ Iron: <span class="stat-value" id="iron">0</span></div>
+            <div class="stat-item">🪓 Stone Axes: <span class="stat-value" id="stoneAxe">0</span></div>
+            <div class="stat-item">⛏️ Stone Pick: <span class="stat-value" id="stonePick">0</span></div>
+            <div class="stat-item">⚔️ Iron Axe: <span class="stat-value" id="ironAxe">0</span></div>
+            <div class="stat-item">🔨 Iron Pick: <span class="stat-value" id="ironPick">0</span></div>
+        </div>
+
+        <div class="people-panel">
+            <div class="people-header">
+                <span>👥 ASSIGN TRIBE</span>
+                <span>Idle: <span id="idle">10</span></span>
+            </div>
+            <div class="people-assign">
+                <div class="task" id="taskFood">
+                    <span class="task-name">🍖 Gather Food</span>
+                    <span class="task-count" id="foodPeople">0</span>
+                    <div class="task-controls">
+                        <button class="task-btn" id="foodMinus">−</button>
+                        <button class="task-btn" id="foodPlus">+</button>
+                    </div>
+                </div>
+                <div class="task" id="taskWood">
+                    <span class="task-name">🪵 Gather Wood</span>
+                    <span class="task-count" id="woodPeople">0</span>
+                    <div class="task-controls">
+                        <button class="task-btn" id="woodMinus">−</button>
+                        <button class="task-btn" id="woodPlus">+</button>
+                    </div>
+                </div>
+                <div class="task" id="taskStone">
+                    <span class="task-name">🪨 Gather Stone</span>
+                    <span class="task-count" id="stonePeople">0</span>
+                    <div class="task-controls">
+                        <button class="task-btn" id="stoneMinus">−</button>
+                        <button class="task-btn" id="stonePlus">+</button>
+                    </div>
+                </div>
+                <div class="task" id="taskIron">
+                    <span class="task-name">⛓️ Mine Iron</span>
+                    <span class="task-count" id="ironPeople">0</span>
+                    <div class="task-controls">
+                        <button class="task-btn" id="ironMinus">−</button>
+                        <button class="task-btn" id="ironPlus">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="next-day-btn" id="nextDay">☀️ NEXT DAY (Space)</button>
+
+        <div class="craft-panel">
+            <div class="craft-header">🛠️ CRAFT TOOLS</div>
+            <div class="craft-items">
+                <div class="craft-item" id="craftStoneAxe">
+                    <div class="craft-item-name">🪓 Stone Axe</div>
+                    <div class="craft-item-cost">Cost: 1 Wood, 1 Stone</div>
+                    <div class="craft-item-have">Have: <span id="haveStoneAxe">0</span></div>
+                </div>
+                <div class="craft-item" id="craftStonePick">
+                    <div class="craft-item-name">⛏️ Stone Pick</div>
+                    <div class="craft-item-cost">Cost: 1 Wood, 2 Stone</div>
+                    <div class="craft-item-have">Have: <span id="haveStonePick">0</span></div>
+                </div>
+                <div class="craft-item" id="craftIronAxe">
+                    <div class="craft-item-name">⚔️ Iron Axe</div>
+                    <div class="craft-item-cost">Cost: 1 Wood, 2 Iron</div>
+                    <div class="craft-item-have">Have: <span id="haveIronAxe">0</span></div>
+                </div>
+                <div class="craft-item" id="craftIronPick">
+                    <div class="craft-item-name">🔨 Iron Pick</div>
+                    <div class="craft-item-cost">Cost: 1 Wood, 3 Iron</div>
+                    <div class="craft-item-have">Have: <span id="haveIronPick">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-log" id="log">
+            Welcome, chief. Your tribe of 10 awaits your command.<br>
+            Assign people to tasks, then press NEXT DAY.
+        </div>
+
+        <button class="reset-btn" id="reset">🔥 RESTART TRIBE</button>
+    </div>
+
+    <script>
+        // --- Game state ---
+        let day = 1;
+        let population = 10;
+        let maxPopulation = 10;
+
+        let food = 5;
+        let wood = 0;
+        let stone = 0;
+        let iron = 0;
+
+        let stoneAxe = 0;
+        let stonePick = 0;
+        let ironAxe = 0;
+        let ironPick = 0;
+
+        let foodPeople = 0;
+        let woodPeople = 0;
+        let stonePeople = 0;
+        let ironPeople = 0;
+
+        const foodBase = 2;
+        const woodBase = 2;
+        const stoneBase = 1;
+        const ironBase = 1;
+
+        let messageLog = [];
+
+        const daySpan = document.getElementById('day');
+        const popSpan = document.getElementById('pop');
+        const idleSpan = document.getElementById('idle');
+
+        const foodSpan = document.getElementById('food');
+        const woodSpan = document.getElementById('wood');
+        const stoneSpan = document.getElementById('stone');
+        const ironSpan = document.getElementById('iron');
+
+        const haveStoneAxe = document.getElementById('haveStoneAxe');
+        const haveStonePick = document.getElementById('haveStonePick');
+        const haveIronAxe = document.getElementById('haveIronAxe');
+        const haveIronPick = document.getElementById('haveIronPick');
+
+        const foodPeopleSpan = document.getElementById('foodPeople');
+        const woodPeopleSpan = document.getElementById('woodPeople');
+        const stonePeopleSpan = document.getElementById('stonePeople');
+        const ironPeopleSpan = document.getElementById('ironPeople');
+
+        const logDiv = document.getElementById('log');
+
+        function updateUI() {
+            daySpan.textContent = day;
+            popSpan.textContent = population;
+            let idle = population - (foodPeople + woodPeople + stonePeople + ironPeople);
+            idleSpan.textContent = idle;
+
+            foodSpan.textContent = food;
+            woodSpan.textContent = wood;
+            stoneSpan.textContent = stone;
+            ironSpan.textContent = iron;
+
+            haveStoneAxe.textContent = stoneAxe;
+            haveStonePick.textContent = stonePick;
+            haveIronAxe.textContent = ironAxe;
+            haveIronPick.textContent = ironPick;
+
+            foodPeopleSpan.textContent = foodPeople;
+            woodPeopleSpan.textContent = woodPeople;
+            stonePeopleSpan.textContent = stonePeople;
+            ironPeopleSpan.textContent = ironPeople;
+        }
+
+        function addMessage(msg) {
+            messageLog.unshift(msg);
+            if (messageLog.length > 5) messageLog.pop();
+            logDiv.innerHTML = messageLog.join('<br>');
+        }
+
+        function gather() {
+            let foodMult = 1 + stoneAxe * 0.5;
+            let foodGain = Math.floor(foodPeople * foodBase * foodMult);
+
+            let woodMult = 1 + stoneAxe * 0.3 + ironAxe * 0.5;
+            let woodGain = Math.floor(woodPeople * woodBase * woodMult);
+
+            let stoneMult = 1 + stonePick * 0.5 + ironPick * 0.7;
+            let stoneGain = Math.floor(stonePeople * stoneBase * stoneMult);
+
+            let ironMult = 1 + stonePick * 0.2 + ironPick * 0.8;
+            let ironGain = Math.floor(ironPeople * ironBase * ironMult);
+
+            food += foodGain;
+            wood += woodGain;
+            stone += stoneGain;
+            iron += ironGain;
+
+            addMessage(`Day ${day}: Gathered ${foodGain} food, ${woodGain} wood, ${stoneGain} stone, ${ironGain} iron.`);
+        }
+
+        function consume() {
+            let foodNeeded = population * 2;
+            if (food >= foodNeeded) {
+                food -= foodNeeded;
+                addMessage(`Tribe ate ${foodNeeded} food.`);
+            } else {
+                let deficit = foodNeeded - food;
+                let starve = Math.min(population, Math.floor(deficit / 2));
+                if (starve > 0) {
+                    population -= starve;
+                    if (population < 0) population = 0;
+                    food = 0;
+                    addMessage(`⚠️ Starvation! ${starve} people died.`);
+                    // Unassign dead workers
+                    let total = foodPeople + woodPeople + stonePeople + ironPeople;
+                    if (total > population) {
+                        let excess = total - population;
+                        while (excess > 0) {
+                            if (ironPeople > 0) { ironPeople--; excess--; }
+                            else if (stonePeople > 0) { stonePeople--; excess--; }
+                            else if (woodPeople > 0) { woodPeople--; excess--; }
+                            else if (foodPeople > 0) { foodPeople--; excess--; }
+                            else break;
+                        }
+                    }
+                } else {
+                    food = 0;
+                }
+            }
+
+            if (Math.random() < 0.1) {
+                let event = Math.floor(Math.random() * 3);
+                if (event === 0) {
+                    let berries = Math.floor(Math.random() * 10) + 5;
+                    food += berries;
+                    addMessage(`🍓 Tribe found wild berries! +${berries} food.`);
+                } else if (event === 1) {
+                    let loss = Math.floor(Math.random() * 3) + 1;
+                    population -= loss;
+                    if (population < 0) population = 0;
+                    addMessage(`🐗 Wild boar attacked! ${loss} people lost.`);
+                    let total = foodPeople + woodPeople + stonePeople + ironPeople;
+                    if (total > population) {
+                        let excess = total - population;
+                        while (excess > 0) {
+                            if (ironPeople > 0) { ironPeople--; excess--; }
+                            else if (stonePeople > 0) { stonePeople--; excess--; }
+                            else if (woodPeople > 0) { woodPeople--; excess--; }
+                            else if (foodPeople > 0) { foodPeople--; excess--; }
+                            else break;
+                        }
+                    }
+                } else {
+                    population += 1;
+                    maxPopulation += 1;
+                    addMessage(`👥 Wanderers joined the tribe! Population +1.`);
+                }
+            }
+
+            if (population > maxPopulation) population = maxPopulation;
+        }
+
+        function nextDay() {
+            if (population <= 0) {
+                addMessage('💀 Your tribe has perished. Press RESTART.');
+                return;
+            }
+
+            gather();
+            consume();
+            day++;
+
+            if (food < 0) food = 0;
+            if (wood < 0) wood = 0;
+            if (stone < 0) stone = 0;
+            if (iron < 0) iron = 0;
+
+            updateUI();
+
+            if (population <= 0) {
+                addMessage('💀 GAME OVER. No one survived.');
+            }
+        }
+
+        function assignTo(task, delta) {
+            let idle = population - (foodPeople + woodPeople + stonePeople + ironPeople);
+            if (delta > 0 && idle <= 0) {
+                addMessage('No idle people to assign.');
+                return;
+            }
+
+            if (task === 'food') {
+                let newVal = foodPeople + delta;
+                if (newVal < 0) newVal = 0;
+                if (newVal > population - (woodPeople + stonePeople + ironPeople)) newVal = population - (woodPeople + stonePeople + ironPeople);
+                foodPeople = newVal;
+            } else if (task === 'wood') {
+                let newVal = woodPeople + delta;
+                if (newVal < 0) newVal = 0;
+                if (newVal > population - (foodPeople + stonePeople + ironPeople)) newVal = population - (foodPeople + stonePeople + ironPeople);
+                woodPeople = newVal;
+            } else if (task === 'stone') {
+                let newVal = stonePeople + delta;
+                if (newVal < 0) newVal = 0;
+                if (newVal > population - (foodPeople + woodPeople + ironPeople)) newVal = population - (foodPeople + woodPeople + ironPeople);
+                stonePeople = newVal;
+            } else if (task === 'iron') {
+                let newVal = ironPeople + delta;
+                if (newVal < 0) newVal = 0;
+                if (newVal > population - (foodPeople + woodPeople + stonePeople)) newVal = population - (foodPeople + woodPeople + stonePeople);
+                ironPeople = newVal;
+            }
+
+            updateUI();
+        }
+
+        function craftStoneAxeFn() {
+            if (wood >= 1 && stone >= 1) {
+                wood -= 1; stone -= 1; stoneAxe++;
+                addMessage('🪓 Crafted a Stone Axe.');
+                updateUI();
+            } else {
+                addMessage('Not enough resources!');
+            }
+        }
+
+        function craftStonePickFn() {
+            if (wood >= 1 && stone >= 2) {
+                wood -= 1; stone -= 2; stonePick++;
+                addMessage('⛏️ Crafted a Stone Pickaxe.');
+                updateUI();
+            } else {
+                addMessage('Not enough resources!');
+            }
+        }
+
+        function craftIronAxeFn() {
+            if (wood >= 1 && iron >= 2) {
+                wood -= 1; iron -= 2; ironAxe++;
+                addMessage('⚔️ Crafted an Iron Axe.');
+                updateUI();
+            } else {
+                addMessage('Not enough resources!');
+            }
+        }
+
+        function craftIronPickFn() {
+            if (wood >= 1 && iron >= 3) {
+                wood -= 1; iron -= 3; ironPick++;
+                addMessage('🔨 Crafted an Iron Pickaxe.');
+                updateUI();
+            } else {
+                addMessage('Not enough resources!');
+            }
+        }
+
+        function resetGame() {
+            day = 1;
+            population = 10;
+            maxPopulation = 10;
+            food = 5;
+            wood = 0; stone = 0; iron = 0;
+            stoneAxe = 0; stonePick = 0; ironAxe = 0; ironPick = 0;
+            foodPeople = 0; woodPeople = 0; stonePeople = 0; ironPeople = 0;
+            messageLog = ['Welcome, chief. Your tribe of 10 awaits your command.', 'Assign people to tasks, then press NEXT DAY.'];
+            logDiv.innerHTML = messageLog.join('<br>');
+            updateUI();
+        }
+
+        document.getElementById('foodPlus').addEventListener('click', () => assignTo('food', 1));
+        document.getElementById('foodMinus').addEventListener('click', () => assignTo('food', -1));
+        document.getElementById('woodPlus').addEventListener('click', () => assignTo('wood', 1));
+        document.getElementById('woodMinus').addEventListener('click', () => assignTo('wood', -1));
+        document.getElementById('stonePlus').addEventListener('click', () => assignTo('stone', 1));
+        document.getElementById('stoneMinus').addEventListener('click', () => assignTo('stone', -1));
+        document.getElementById('ironPlus').addEventListener('click', () => assignTo('iron', 1));
+        document.getElementById('ironMinus').addEventListener('click', () => assignTo('iron', -1));
+
+        document.getElementById('craftStoneAxe').addEventListener('click', craftStoneAxeFn);
+        document.getElementById('craftStonePick').addEventListener('click', craftStonePickFn);
+        document.getElementById('craftIronAxe').addEventListener('click', craftIronAxeFn);
+        document.getElementById('craftIronPick').addEventListener('click', craftIronPickFn);
+
+        document.getElementById('nextDay').addEventListener('click', nextDay);
+        document.getElementById('reset').addEventListener('click', resetGame);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                nextDay();
+            }
+        });
+
+        updateUI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TRIBAL SURVIVAL – 3D REALISTIC</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-shadow: 2px 2px 2px black;
+            background: rgba(0,0,0,0.6);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(3px);
+            border: 1px solid #8b6e4b;
+            pointer-events: none;
+            z-index: 100;
+        }
+        #health-bar {
+            width: 200px;
+            height: 15px;
+            background: #333;
+            border: 1px solid #888;
+            margin: 5px 0;
+        }
+        #health-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #f00, #f88);
+        }
+        #hunger-bar {
+            width: 200px;
+            height: 15px;
+            background: #333;
+            border: 1px solid #888;
+            margin: 5px 0;
+        }
+        #hunger-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ffaa00, #ffdd88);
+        }
+        #inventory {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px;
+            border-radius: 15px;
+            border: 2px solid #8b6e4b;
+            backdrop-filter: blur(3px);
+            z-index: 100;
+        }
+        .slot {
+            width: 60px;
+            height: 60px;
+            background: rgba(50,50,50,0.8);
+            border: 2px solid #8b6e4b;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            text-align: center;
+            position: relative;
+        }
+        .slot.selected {
+            border-color: gold;
+            box-shadow: 0 0 15px gold;
+        }
+        .slot-icon {
+            font-size: 24px;
+        }
+        .slot-count {
+            position: absolute;
+            bottom: 2px;
+            right: 5px;
+            font-size: 14px;
+            color: #ffd966;
+        }
+        #crafting-menu {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #8b6e4b;
+            color: white;
+            backdrop-filter: blur(3px);
+            z-index: 100;
+            pointer-events: all;
+            width: 200px;
+        }
+        .craft-item {
+            background: #3a4a3a;
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.1s;
+            border: 1px solid #8b6e4b;
+        }
+        .craft-item:hover {
+            background: #4a5a4a;
+            border-color: gold;
+        }
+        #follower-count {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #8b6e4b;
+            backdrop-filter: blur(3px);
+            z-index: 100;
+        }
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 200;
+        }
+        #controls-hint {
+            position: absolute;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            z-index: 100;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div>❤️ Health: <span id="health">100</span></div>
+        <div id="health-bar"><div id="health-fill"></div></div>
+        <div>🍗 Hunger: <span id="hunger">100</span></div>
+        <div id="hunger-bar"><div id="hunger-fill"></div></div>
+        <div>🪓 Stone: <span id="stoneCount">0</span> | ⛓️ Iron: <span id="ironCount">0</span></div>
+        <div>🌲 Wood: <span id="woodCount">0</span> | 🍖 Food: <span id="foodCount">0</span></div>
+        <div>📅 Day <span id="day">1</span></div>
+    </div>
+    <div id="follower-count">👥 Followers: <span id="followers">9</span>/9</div>
+    <div id="inventory">
+        <div class="slot selected" id="slot1">
+            <span class="slot-icon">🪓</span>
+            <span class="slot-count" id="slot1count">0</span>
+        </div>
+        <div class="slot" id="slot2">
+            <span class="slot-icon">⛏️</span>
+            <span class="slot-count" id="slot2count">0</span>
+        </div>
+        <div class="slot" id="slot3">
+            <span class="slot-icon">⚔️</span>
+            <span class="slot-count" id="slot3count">0</span>
+        </div>
+        <div class="slot" id="slot4">
+            <span class="slot-icon">🍖</span>
+            <span class="slot-count" id="slot4count">0</span>
+        </div>
+    </div>
+    <div id="crafting-menu">
+        <h3 style="margin:0 0 10px;">🛠️ Craft (C to toggle)</h3>
+        <div class="craft-item" id="craftStoneAxe">Stone Axe (2 wood, 2 stone)</div>
+        <div class="craft-item" id="craftStonePick">Stone Pick (2 wood, 3 stone)</div>
+        <div class="craft-item" id="craftIronAxe">Iron Axe (3 wood, 3 iron)</div>
+        <div class="craft-item" id="craftIronPick">Iron Pick (3 wood, 4 iron)</div>
+        <div class="craft-item" id="craftCampfire">Campfire (5 wood, 2 stone)</div>
+    </div>
+    <div id="crosshair"></div>
+    <div id="controls-hint">WASD move | Click gather/attack | E interact | C craft | 1-4 slots</div>
+
+    <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        // --- Setup ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB);
+        scene.fog = new THREE.Fog(0x87CEEB, 50, 200);
+
+        const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 1000);
+        camera.position.set(0, 20, 30);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(innerWidth, innerHeight);
+        labelRenderer.domElement.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
+        document.body.appendChild(labelRenderer.domElement);
+
+        // Pointer lock (no PointerLockControls — third-person camera)
+        let isLocked = false;
+        renderer.domElement.addEventListener('click', () => {
+            if (!isLocked) renderer.domElement.requestPointerLock();
+        });
+        document.addEventListener('pointerlockchange', () => {
+            isLocked = !!document.pointerLockElement;
+        });
+
+        // --- UI Elements ---
+        const healthSpan = document.getElementById('health');
+        const healthFill = document.getElementById('health-fill');
+        const hungerSpan = document.getElementById('hunger');
+        const hungerFill = document.getElementById('hunger-fill');
+        const stoneSpan = document.getElementById('stoneCount');
+        const ironSpan = document.getElementById('ironCount');
+        const woodSpan = document.getElementById('woodCount');
+        const foodSpan = document.getElementById('foodCount');
+        const daySpan = document.getElementById('day');
+        const followersSpan = document.getElementById('followers');
+
+        const slot1count = document.getElementById('slot1count');
+        const slot2count = document.getElementById('slot2count');
+        const slot3count = document.getElementById('slot3count');
+        const slot4count = document.getElementById('slot4count');
+        const slots = [document.getElementById('slot1'), document.getElementById('slot2'), document.getElementById('slot3'), document.getElementById('slot4')];
+
+        // --- Game State ---
+        let health = 100;
+        let hunger = 100;
+        let stone = 10;
+        let iron = 0;
+        let wood = 15;
+        let food = 20;
+        let day = 1;
+
+        let stoneAxe = 0;
+        let stonePick = 0;
+        let ironAxe = 0;
+        let ironPick = 0;
+
+        let selectedSlot = 0;
+
+        const resources = [];
+        const enemies = [];
+        const followersList = [];
+
+        // --- Lighting ---
+        scene.add(new THREE.AmbientLight(0x404060));
+
+        const sunLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+        sunLight.position.set(50, 100, 50);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.set(2048, 2048);
+        sunLight.shadow.camera.near = 0.5;
+        sunLight.shadow.camera.far = 200;
+        sunLight.shadow.camera.left = -50;
+        sunLight.shadow.camera.right = 50;
+        sunLight.shadow.camera.top = 50;
+        sunLight.shadow.camera.bottom = -50;
+        scene.add(sunLight);
+
+        // --- Terrain height helper ---
+        function getTerrainHeight(x, z) {
+            return Math.sin(x * 0.1) * Math.cos(z * 0.1) * 3 +
+                   Math.sin(x * 0.3) * 1.5 +
+                   Math.sin(z * 0.2) * 2;
+        }
+
+        // --- Ground ---
+        const groundGeo = new THREE.PlaneGeometry(200, 200, 64, 64);
+        const groundMat = new THREE.MeshStandardMaterial({ color: 0x5a7a3a });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        const positions = groundGeo.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+            positions[i + 1] = getTerrainHeight(positions[i], positions[i + 2]);
+        }
+        groundGeo.computeVertexNormals();
+
+        // Grass tufts
+        for (let i = 0; i < 200; i++) {
+            const x = (Math.random() - 0.5) * 180;
+            const z = (Math.random() - 0.5) * 180;
+            const y = getTerrainHeight(x, z);
+            const grass = new THREE.Mesh(
+                new THREE.ConeGeometry(0.3, 0.8, 4),
+                new THREE.MeshStandardMaterial({ color: 0x3a7a3a })
+            );
+            grass.position.set(x, y + 0.4, z);
+            grass.castShadow = true;
+            scene.add(grass);
+        }
+
+        // --- Trees ---
+        function createTree(x, z) {
+            const group = new THREE.Group();
+            const yBase = getTerrainHeight(x, z);
+
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.8, 1.2, 5),
+                new THREE.MeshStandardMaterial({ color: 0x8B5A2B })
+            );
+            trunk.position.y = yBase + 2.5;
+            trunk.castShadow = true;
+            group.add(trunk);
+
+            const leafMat = new THREE.MeshStandardMaterial({ color: 0x2E7D32 });
+            [[0, 4.5, 0, 1.2], [0.8, 5.5, 0.5, 1.0], [-0.6, 5.8, -0.4, 1.0]].forEach(([lx, ly, lz, r]) => {
+                const leaf = new THREE.Mesh(new THREE.SphereGeometry(r), leafMat);
+                leaf.position.set(lx, yBase + ly, lz);
+                leaf.castShadow = true;
+                group.add(leaf);
+            });
+
+            group.position.set(x, 0, z);
+            group.userData = { type: 'tree', health: 5 };
+            return group;
+        }
+
+        const trees = [];
+        for (let i = 0; i < 50; i++) {
+            const x = (Math.random() - 0.5) * 160;
+            const z = (Math.random() - 0.5) * 160;
+            const tree = createTree(x, z);
+            scene.add(tree);
+            trees.push(tree);
+        }
+
+        // --- Rocks ---
+        class Rock {
+            constructor(x, z) {
+                this.group = new THREE.Group();
+                const yBase = getTerrainHeight(x, z);
+                const rock = new THREE.Mesh(
+                    new THREE.DodecahedronGeometry(0.8),
+                    new THREE.MeshStandardMaterial({ color: 0x888888 })
+                );
+                rock.position.y = yBase + 0.5;
+                rock.castShadow = true;
+                this.group.add(rock);
+                this.group.position.set(x, 0, z);
+                scene.add(this.group);
+                this.health = 5;
+                this.type = 'stone';
+            }
+        }
+
+        for (let i = 0; i < 30; i++) {
+            const x = (Math.random() - 0.5) * 160;
+            const z = (Math.random() - 0.5) * 160;
+            resources.push(new Rock(x, z));
+        }
+
+        // --- Iron Ore ---
+        class IronOre {
+            constructor(x, z) {
+                this.group = new THREE.Group();
+                const yBase = getTerrainHeight(x, z);
+                const ore = new THREE.Mesh(
+                    new THREE.OctahedronGeometry(0.6),
+                    new THREE.MeshStandardMaterial({ color: 0xcc8866 })
+                );
+                ore.position.y = yBase + 0.4;
+                ore.castShadow = true;
+                this.group.add(ore);
+                this.group.position.set(x, 0, z);
+                scene.add(this.group);
+                this.health = 8;
+                this.type = 'iron';
+            }
+        }
+
+        for (let i = 0; i < 10; i++) {
+            const x = (Math.random() - 0.5) * 160;
+            const z = (Math.random() - 0.5) * 160;
+            resources.push(new IronOre(x, z));
+        }
+
+        // --- Berry Bushes ---
+        class Bush {
+            constructor(x, z) {
+                this.group = new THREE.Group();
+                const yBase = getTerrainHeight(x, z);
+                const bush = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.8),
+                    new THREE.MeshStandardMaterial({ color: 0x2a7a2a })
+                );
+                bush.position.y = yBase + 0.5;
+                bush.castShadow = true;
+                this.group.add(bush);
+
+                for (let i = 0; i < 5; i++) {
+                    const berry = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.15),
+                        new THREE.MeshStandardMaterial({ color: 0xff3366 })
+                    );
+                    berry.position.set(
+                        (Math.random() - 0.5) * 0.8,
+                        yBase + 0.8 + Math.random() * 0.5,
+                        (Math.random() - 0.5) * 0.8
+                    );
+                    this.group.add(berry);
+                }
+
+                this.group.position.set(x, 0, z);
+                scene.add(this.group);
+                this.health = 3;
+                this.type = 'berry';
+            }
+        }
+
+        for (let i = 0; i < 25; i++) {
+            const x = (Math.random() - 0.5) * 160;
+            const z = (Math.random() - 0.5) * 160;
+            resources.push(new Bush(x, z));
+        }
+
+        // --- Player ---
+        const playerGroup = new THREE.Group();
+
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xccaa88 });
+        const pbody = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.8), bodyMat);
+        pbody.position.y = 0.9; pbody.castShadow = true; playerGroup.add(pbody);
+
+        const phead = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshStandardMaterial({ color: 0xffccaa }));
+        phead.position.y = 1.9; phead.castShadow = true; playerGroup.add(phead);
+
+        const phair = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.3, 8), new THREE.MeshStandardMaterial({ color: 0x442211 }));
+        phair.position.y = 2.15; playerGroup.add(phair);
+
+        const armMat = new THREE.MeshStandardMaterial({ color: 0xccaa88 });
+        const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.2), armMat);
+        leftArm.position.set(-0.6, 1.2, 0); leftArm.rotation.z = 0.2; leftArm.castShadow = true; playerGroup.add(leftArm);
+        const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.2), armMat);
+        rightArm.position.set(0.6, 1.2, 0); rightArm.rotation.z = -0.2; rightArm.castShadow = true; playerGroup.add(rightArm);
+
+        const legMat = new THREE.MeshStandardMaterial({ color: 0x442211 });
+        const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 1.2), legMat);
+        leftLeg.position.set(-0.3, 0.3, 0); leftLeg.castShadow = true; playerGroup.add(leftLeg);
+        const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 1.2), legMat);
+        rightLeg.position.set(0.3, 0.3, 0); rightLeg.castShadow = true; playerGroup.add(rightLeg);
+
+        const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1), new THREE.MeshStandardMaterial({ color: 0xaaaaaa }));
+        handle.position.set(1.0, 1.5, 0.3); handle.rotation.z = -0.2; handle.castShadow = true; playerGroup.add(handle);
+        const headTool = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshStandardMaterial({ color: 0xcc8866 }));
+        headTool.position.set(1.5, 1.8, 0.3); headTool.castShadow = true; playerGroup.add(headTool);
+
+        scene.add(playerGroup);
+
+        // --- Followers ---
+        function createFollower() {
+            const group = new THREE.Group();
+            const b = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.6), new THREE.MeshStandardMaterial({ color: 0xccaa88 }));
+            b.position.y = 0.8; b.castShadow = true; group.add(b);
+            const h = new THREE.Mesh(new THREE.SphereGeometry(0.35), new THREE.MeshStandardMaterial({ color: 0xffccaa }));
+            h.position.y = 1.7; h.castShadow = true; group.add(h);
+            const hr = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.25, 8), new THREE.MeshStandardMaterial({ color: 0x332211 }));
+            hr.position.y = 1.95; group.add(hr);
+            return group;
+        }
+
+        for (let i = 0; i < 9; i++) {
+            const follower = createFollower();
+            follower.position.set(2 + i * 0.5, 0, 2);
+            scene.add(follower);
+            followersList.push(follower);
+        }
+
+        // --- Wolves ---
+        class Wolf {
+            constructor() {
+                const group = new THREE.Group();
+                const mat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+                const body = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.2), mat);
+                body.position.y = 0.6; body.castShadow = true; group.add(body);
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.4), mat);
+                head.position.set(0, 1.2, 0.5); head.castShadow = true; group.add(head);
+                const ear1 = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.4), mat);
+                ear1.position.set(-0.2, 1.5, 0.7); group.add(ear1);
+                const ear2 = ear1.clone();
+                ear2.position.set(0.2, 1.5, 0.7); group.add(ear2);
+                const tail = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.6), mat);
+                tail.position.set(0, 0.8, -0.6); tail.rotation.x = 0.3; group.add(tail);
+
+                // Eyes
+                const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff4444 });
+                const eye1 = new THREE.Mesh(new THREE.SphereGeometry(0.08), eyeMat);
+                eye1.position.set(-0.15, 1.3, 0.85); group.add(eye1);
+                const eye2 = eye1.clone();
+                eye2.position.set(0.15, 1.3, 0.85); group.add(eye2);
+
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 30 + Math.random() * 20;
+                group.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                scene.add(group);
+
+                this.mesh = group;
+                this.health = 20;
+                this.speed = 3;
+                this.atkCd = 0;
+                this.dead = false;
+            }
+
+            update(playerPos, dt) {
+                if (this.dead) return;
+                const dir = new THREE.Vector3().subVectors(playerPos, this.mesh.position).normalize();
+                this.mesh.position.add(dir.multiplyScalar(this.speed * dt));
+                this.mesh.lookAt(playerPos);
+                if (this.atkCd > 0) this.atkCd -= dt;
+            }
+
+            die() {
+                this.dead = true;
+                scene.remove(this.mesh);
+            }
+        }
+
+        for (let i = 0; i < 3; i++) {
+            enemies.push(new Wolf());
+        }
+
+        // --- Input ---
+        const ks = { w: false, a: false, s: false, d: false };
+        document.addEventListener('keydown', e => {
+            if (e.code === 'KeyW') ks.w = true;
+            if (e.code === 'KeyS') ks.s = true;
+            if (e.code === 'KeyA') ks.a = true;
+            if (e.code === 'KeyD') ks.d = true;
+            if (e.code === 'Escape') document.exitPointerLock();
+            if (e.code === 'KeyC') toggleCraftingMenu();
+            if (e.code === 'KeyE') interact();
+            if (e.code === 'Digit1') selectSlot(0);
+            if (e.code === 'Digit2') selectSlot(1);
+            if (e.code === 'Digit3') selectSlot(2);
+            if (e.code === 'Digit4') selectSlot(3);
+        });
+        document.addEventListener('keyup', e => {
+            if (e.code === 'KeyW') ks.w = false;
+            if (e.code === 'KeyS') ks.s = false;
+            if (e.code === 'KeyA') ks.a = false;
+            if (e.code === 'KeyD') ks.d = false;
+        });
+
+        let atkDown = false;
+        document.addEventListener('mousedown', e => { if (e.button === 0 && isLocked) atkDown = true; });
+        document.addEventListener('mouseup', e => { if (e.button === 0) atkDown = false; });
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // --- Game functions ---
+        function toggleCraftingMenu() {
+            const menu = document.getElementById('crafting-menu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function selectSlot(index) {
+            selectedSlot = index;
+            slots.forEach((s, i) => {
+                if (i === index) s.classList.add('selected');
+                else s.classList.remove('selected');
+            });
+        }
+
+        function interact() {
+            const pp = playerGroup.position;
+            // Find nearest resource or tree within range
+            let nearest = null, nearDist = 5;
+
+            resources.forEach(r => {
+                const d = pp.distanceTo(r.group.position);
+                if (d < nearDist) { nearDist = d; nearest = { obj: r, kind: 'resource' }; }
+            });
+
+            trees.forEach(t => {
+                const d = pp.distanceTo(t.position);
+                if (d < nearDist) { nearDist = d; nearest = { obj: t, kind: 'tree' }; }
+            });
+
+            if (!nearest) return;
+
+            if (nearest.kind === 'resource') {
+                const r = nearest.obj;
+                let gain = 1;
+                if (r.type === 'stone') {
+                    if (stonePick > 0) gain = 3;
+                    stone += gain;
+                } else if (r.type === 'iron') {
+                    if (ironPick > 0) gain = 3;
+                    else if (stonePick > 0) gain = 2;
+                    iron += gain;
+                } else if (r.type === 'berry') {
+                    food += 2;
+                }
+                r.health--;
+                if (r.health <= 0) {
+                    scene.remove(r.group);
+                    resources.splice(resources.indexOf(r), 1);
+                }
+            } else if (nearest.kind === 'tree') {
+                const t = nearest.obj;
+                let gain = 1;
+                if (stoneAxe > 0) gain = 2;
+                if (ironAxe > 0) gain = 3;
+                wood += gain;
+                t.userData.health--;
+                if (t.userData.health <= 0) {
+                    scene.remove(t);
+                    trees.splice(trees.indexOf(t), 1);
+                }
+            }
+
+            // Swing animation
+            handle.rotation.z = -1.2;
+            setTimeout(() => handle.rotation.z = -0.2, 150);
+            updateUI();
+        }
+
+        function doAttack() {
+            const pp = playerGroup.position;
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const e = enemies[i];
+                if (e.dead) continue;
+                const d = pp.distanceTo(e.mesh.position);
+                if (d < 4) {
+                    let damage = 5;
+                    if (selectedSlot === 2 && ironAxe > 0) damage = 15;
+                    else if (selectedSlot === 0 && stoneAxe > 0) damage = 10;
+                    e.health -= damage;
+                    if (e.health <= 0) {
+                        e.die();
+                        enemies.splice(i, 1);
+                        food += 5;
+                    }
+                    break;
+                }
+            }
+            handle.rotation.z = -1.2;
+            setTimeout(() => handle.rotation.z = -0.2, 150);
+            updateUI();
+        }
+
+        // --- Crafting ---
+        document.getElementById('craftStoneAxe').addEventListener('click', () => {
+            if (wood >= 2 && stone >= 2) { wood -= 2; stone -= 2; stoneAxe++; updateUI(); }
+        });
+        document.getElementById('craftStonePick').addEventListener('click', () => {
+            if (wood >= 2 && stone >= 3) { wood -= 2; stone -= 3; stonePick++; updateUI(); }
+        });
+        document.getElementById('craftIronAxe').addEventListener('click', () => {
+            if (wood >= 3 && iron >= 3) { wood -= 3; iron -= 3; ironAxe++; updateUI(); }
+        });
+        document.getElementById('craftIronPick').addEventListener('click', () => {
+            if (wood >= 3 && iron >= 4) { wood -= 3; iron -= 4; ironPick++; updateUI(); }
+        });
+        document.getElementById('craftCampfire').addEventListener('click', () => {
+            if (wood >= 5 && stone >= 2) {
+                wood -= 5; stone -= 2;
+                const pp = playerGroup.position.clone();
+                const fireGroup = new THREE.Group();
+                // Logs
+                const logMat = new THREE.MeshStandardMaterial({ color: 0x5c3a1e });
+                for (let i = 0; i < 4; i++) {
+                    const log = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8), logMat);
+                    log.rotation.z = Math.PI / 2;
+                    log.rotation.y = (i / 4) * Math.PI;
+                    log.position.y = 0.1;
+                    fireGroup.add(log);
+                }
+                // Fire glow
+                const fireMat = new THREE.MeshBasicMaterial({ color: 0xff5500 });
+                const fire = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.8, 6), fireMat);
+                fire.position.y = 0.5;
+                fireGroup.add(fire);
+                const light = new THREE.PointLight(0xff6622, 2, 15);
+                light.position.y = 1;
+                fireGroup.add(light);
+                fireGroup.position.copy(pp).add(new THREE.Vector3(2, 0, 0));
+                scene.add(fireGroup);
+                updateUI();
+            }
+        });
+
+        function updateUI() {
+            healthSpan.textContent = Math.floor(Math.max(0, health));
+            healthFill.style.width = Math.max(0, health) + '%';
+            hungerSpan.textContent = Math.floor(Math.max(0, hunger));
+            hungerFill.style.width = Math.max(0, hunger) + '%';
+            stoneSpan.textContent = stone;
+            ironSpan.textContent = iron;
+            woodSpan.textContent = wood;
+            foodSpan.textContent = food;
+            daySpan.textContent = day;
+            followersSpan.textContent = followersList.length;
+
+            slot1count.textContent = stoneAxe;
+            slot2count.textContent = stonePick;
+            slot3count.textContent = ironAxe;
+            slot4count.textContent = food;
+        }
+
+        // --- Game loop ---
+        let lastTime = performance.now() / 1000;
+        let hungerTimer = 0;
+        let spawnTimer = 0;
+        let timeOfDay = 0;
+
+        function gameLoop() {
+            const time = performance.now() / 1000;
+            const dt = Math.min(0.1, time - lastTime);
+            lastTime = time;
+
+            if (!isLocked) {
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            // Movement — world-space WASD
+            const moveDir = new THREE.Vector3();
+            if (ks.w) moveDir.z -= 1;
+            if (ks.s) moveDir.z += 1;
+            if (ks.a) moveDir.x -= 1;
+            if (ks.d) moveDir.x += 1;
+            if (moveDir.lengthSq() > 0) {
+                moveDir.normalize();
+                playerGroup.position.add(moveDir.multiplyScalar(10 * dt));
+            }
+
+            // Clamp to world bounds
+            playerGroup.position.x = Math.max(-90, Math.min(90, playerGroup.position.x));
+            playerGroup.position.z = Math.max(-90, Math.min(90, playerGroup.position.z));
+
+            // Set player Y to terrain height
+            playerGroup.position.y = getTerrainHeight(playerGroup.position.x, playerGroup.position.z);
+
+            // Attack
+            if (atkDown) { doAttack(); atkDown = false; }
+
+            // Followers follow
+            const pp = playerGroup.position.clone();
+            followersList.forEach((f, i) => {
+                const offset = new THREE.Vector3(Math.sin(i * 0.7) * 2.5, 0, Math.cos(i * 0.7) * 2.5 - 2);
+                const target = pp.clone().add(offset);
+                target.y = getTerrainHeight(target.x, target.z);
+                f.position.lerp(target, 0.05);
+                f.lookAt(pp);
+            });
+
+            // Enemies
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const e = enemies[i];
+                if (e.dead) { enemies.splice(i, 1); continue; }
+                e.update(pp, dt);
+                e.mesh.position.y = getTerrainHeight(e.mesh.position.x, e.mesh.position.z);
+                if (pp.distanceTo(e.mesh.position) < 2 && e.atkCd <= 0) {
+                    e.atkCd = 1;
+                    health -= 8;
+                    if (health <= 0) {
+                        health = 0;
+                        document.exitPointerLock();
+                        alert(`💀 Your tribe has fallen on Day ${day}!`);
+                        location.reload();
+                    }
+                }
+            }
+
+            // Hunger
+            hungerTimer += dt;
+            if (hungerTimer > 5) {
+                hungerTimer = 0;
+                hunger -= 5;
+                if (hunger < 0) hunger = 0;
+                if (hunger === 0) health -= 5;
+            }
+
+            // Auto-eat when hungry
+            if (hunger < 50 && food > 0) {
+                food--;
+                hunger = Math.min(100, hunger + 20);
+            }
+
+            // Day/night cycle
+            timeOfDay += dt / 120;
+            if (timeOfDay > 1) {
+                timeOfDay = 0;
+                day++;
+                for (let i = 0; i < Math.min(day, 5); i++) {
+                    if (enemies.length < 10) enemies.push(new Wolf());
+                }
+            }
+
+            // Sun position & sky color
+            const sunAngle = timeOfDay * Math.PI * 2;
+            sunLight.position.x = 100 * Math.sin(sunAngle);
+            sunLight.position.y = 100 * Math.cos(sunAngle);
+            const brightness = Math.max(0.1, 0.5 + 0.5 * Math.cos(sunAngle));
+            scene.background.setHSL(0.58, 0.6, brightness * 0.5);
+            sunLight.intensity = brightness * 1.5;
+
+            // Spawn resources
+            spawnTimer += dt;
+            if (spawnTimer > 10 && resources.length < 50) {
+                spawnTimer = 0;
+                const x = (Math.random() - 0.5) * 160;
+                const z = (Math.random() - 0.5) * 160;
+                const r = Math.random();
+                if (r < 0.4) resources.push(new Bush(x, z));
+                else if (r < 0.7) resources.push(new Rock(x, z));
+                else resources.push(new IronOre(x, z));
+            }
+
+            updateUI();
+
+            // Smooth third-person camera
+            const targetCamPos = new THREE.Vector3(pp.x, pp.y + 8, pp.z + 15);
+            camera.position.lerp(targetCamPos, 0.05);
+            camera.lookAt(pp.x, pp.y + 1, pp.z);
+
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+
+        addEventListener('resize', () => {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+            labelRenderer.setSize(innerWidth, innerHeight);
+        });
+    </script>
+</body>
+</html>

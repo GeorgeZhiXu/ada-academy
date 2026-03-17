@@ -2,22 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KNIGHT SQUAD – VIRAL EDITION</title>
+    <title>KNIGHT SQUAD – ULTRA VIBE</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif; background: #1a1a2e; }
-        #ui { position:absolute;top:20px;left:20px;color:white;text-shadow:2px 2px 0 #ff00ff,4px 4px 0 #00ffff;font-size:22px;z-index:100;background:rgba(0,0,0,0.5);padding:10px 20px;border-radius:20px;border:2px solid gold; }
-        #health-bar { width:200px;height:20px;background:#333;border:2px solid red;margin-top:5px; }
-        #health-fill { height:100%;width:100%;background:linear-gradient(90deg,#ff0000,#ffaa00);transition:width .2s; }
-        #ally-count { color:#00ffaa; }
-        #viral-meter { position:absolute;top:120px;left:20px;width:200px;height:20px;background:#333;border:2px solid #ff00ff;border-radius:10px;overflow:hidden;z-index:100; }
-        #viral-fill { height:100%;width:0%;background:linear-gradient(90deg,#ff00ff,#00ffff);transition:width .2s; }
-        #commands { position:absolute;bottom:30px;left:30px;color:white;background:rgba(0,0,0,0.6);padding:10px;border-radius:15px;border:2px solid cyan;font-size:16px;z-index:100; }
-        .command-key { background:yellow;color:black;padding:2px 8px;border-radius:5px;font-weight:bold; }
-        #viral-button { position:absolute;bottom:30px;right:30px;width:100px;height:100px;border:4px solid #ff00ff;border-radius:50%;background:rgba(0,0,0,0.8);color:cyan;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:16px;font-weight:bold;cursor:pointer;transition:0.2s;box-shadow:0 0 30px magenta;z-index:100; }
-        #viral-button.active { background:orange;color:white;transform:scale(1.1);border-color:gold; }
-        #crosshair { position:absolute;top:50%;left:50%;width:40px;height:40px;border:3px solid rgba(255,255,255,0.8);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 20px cyan;z-index:200; }
-        .meme-float { position:absolute;font-size:30px;font-weight:bold;color:yellow;text-shadow:2px 2px 0 red;pointer-events:none;z-index:1000;animation:floatUp 1s ease-out forwards; }
-        @keyframes floatUp { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-100px)} }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&display=swap');
+        body { margin: 0; overflow: hidden; font-family: 'Poppins', sans-serif; background: #0a0a1a; }
+
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-shadow: 0 0 10px cyan, 0 0 20px magenta;
+            font-size: 22px;
+            z-index: 100;
+            background: rgba(10, 10, 30, 0.6);
+            backdrop-filter: blur(5px);
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            font-weight: 900;
+        }
+        #health-bar {
+            width: 220px;
+            height: 20px;
+            background: #222;
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+            box-shadow: 0 0 15px magenta;
+        }
+        #health-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffaa00);
+            transition: width 0.2s;
+        }
+        #ally-count { color: #00ffaa; text-shadow: 0 0 10px #00ffaa; }
+        #viral-meter {
+            position: absolute;
+            top: 130px;
+            left: 20px;
+            width: 220px;
+            height: 25px;
+            background: #111;
+            border: 2px solid #ff00ff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px cyan;
+        }
+        #viral-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            transition: width 0.3s;
+        }
+        #commands {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            padding: 15px;
+            border-radius: 20px;
+            border: 2px solid cyan;
+            font-size: 16px;
+            box-shadow: 0 0 20px cyan;
+        }
+        .command-key {
+            background: linear-gradient(45deg, yellow, orange);
+            color: black;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 2px;
+            box-shadow: 0 0 10px gold;
+        }
+        #viral-button {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(black, black) padding-box,
+                        linear-gradient(45deg, cyan, magenta) border-box;
+            border: 4px solid transparent;
+            color: cyan;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 50px magenta;
+            text-shadow: 0 0 10px white;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        #viral-button.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 80px gold;
+            border-color: gold;
+        }
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.8);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 30px cyan, inset 0 0 10px cyan;
+            z-index: 200;
+        }
+        .meme-float {
+            position: absolute;
+            font-size: 40px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 0 20px magenta, 0 0 40px cyan;
+            pointer-events: none;
+            z-index: 1000;
+            animation: floatUp 1s ease-out forwards;
+            white-space: nowrap;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-150px) scale(1.5); }
+        }
+        #bg-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at 20% 50%, rgba(255,0,255,0.1), transparent 30%),
+                        radial-gradient(circle at 80% 70%, rgba(0,255,255,0.1), transparent 40%);
+            z-index: 50;
+        }
     </style>
 </head>
 <body>
@@ -25,11 +153,17 @@
         ❤️ <span id="health">100</span> | ⭐ <span id="score">0</span> | 🛡️ Allies: <span id="ally-count">3</span> | 🌊 Wave <span id="wave">1</span>
         <div id="health-bar"><div id="health-fill"></div></div>
         <div id="viral-meter"><div id="viral-fill"></div></div>
-        <div style="font-size:14px;margin-top:5px;">Viral Meter (V to activate)</div>
+        <div style="font-size: 14px; margin-top: 5px;">⚡ VIRAL METER (V to activate)</div>
     </div>
-    <div id="commands"><span class="command-key">1</span> Attack<br><span class="command-key">2</span> Follow<br><span class="command-key">3</span> Hold<br><span class="command-key">V</span> VIRAL MODE</div>
+    <div id="commands">
+        <span class="command-key">1</span> Attack<br>
+        <span class="command-key">2</span> Follow<br>
+        <span class="command-key">3</span> Hold<br>
+        <span class="command-key">V</span> VIRAL MODE
+    </div>
     <div id="viral-button">💥 VIRAL<br>READY</div>
     <div id="crosshair"></div>
+    <div id="bg-overlay"></div>
 
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -37,231 +171,708 @@
 
     <script type="module">
         import * as THREE from 'three';
-        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
         import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
+        // --- Setup ---
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
-        scene.fog = new THREE.Fog(0x1a1a2e, 30, 80);
-        const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
-        camera.position.set(0,20,25);
-        const renderer = new THREE.WebGLRenderer({ antialias:true });
-        renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-        renderer.shadowMap.enabled=true;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+        scene.background = new THREE.Color(0x0a0a1a);
+        scene.fog = new THREE.Fog(0x0a0a1a, 30, 100);
+
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 20, 30);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.toneMappingExposure = 1.5;
         document.body.appendChild(renderer.domElement);
+
         const labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize(innerWidth,innerHeight);
-        labelRenderer.domElement.style.cssText='position:absolute;top:0;left:0;pointer-events:none;';
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
         document.body.appendChild(labelRenderer.domElement);
-        const controls = new PointerLockControls(camera, document.body);
-        scene.add(controls.getObject());
 
-        const healthSpan=document.getElementById('health'),healthFill=document.getElementById('health-fill');
-        const scoreSpan=document.getElementById('score'),allyCountSpan=document.getElementById('ally-count');
-        const waveSpan=document.getElementById('wave'),viralFill=document.getElementById('viral-fill');
-        const viralButton=document.getElementById('viral-button');
-
-        // Lighting
-        scene.add(new THREE.AmbientLight(0x404060));
-        const pl1=new THREE.PointLight(0xff00ff,1,30);pl1.position.set(10,15,10);scene.add(pl1);
-        const pl2=new THREE.PointLight(0x00ffff,1,30);pl2.position.set(-10,15,-10);scene.add(pl2);
-        const dl=new THREE.DirectionalLight(0xffffff,1);dl.position.set(5,20,5);dl.castShadow=true;dl.shadow.mapSize.set(1024,1024);scene.add(dl);
-
-        scene.add(new THREE.GridHelper(60,20,0xff00ff,0x00ffff));
-        for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;const p=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,4),new THREE.MeshStandardMaterial({color:0xaa44ff,emissive:0x330066}));p.position.set(Math.cos(a)*20,2,Math.sin(a)*20);p.castShadow=true;scene.add(p);}
-
-        // Player
-        const pg=new THREE.Group();
-        const pbody=new THREE.Mesh(new THREE.CylinderGeometry(1,1,2),new THREE.MeshStandardMaterial({color:0x3399ff,emissive:0x113366}));pbody.position.y=1;pbody.castShadow=true;pg.add(pbody);
-        const phead=new THREE.Mesh(new THREE.SphereGeometry(0.8),new THREE.MeshStandardMaterial({color:0xffccaa}));phead.position.y=2.2;phead.castShadow=true;pg.add(phead);
-        const phelm=new THREE.Mesh(new THREE.ConeGeometry(0.9,0.8,8),new THREE.MeshStandardMaterial({color:0xffaa00,emissive:0x442200}));phelm.position.y=2.6;pg.add(phelm);
-        const ed=document.createElement('div');ed.textContent='🤴';ed.style.cssText='font-size:30px;filter:drop-shadow(0 0 10px gold)';
-        const el=new CSS2DObject(ed);el.position.set(0,3.5,0);pg.add(el);
-        const blade=new THREE.Mesh(new THREE.BoxGeometry(0.2,1.8,0.2),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x666666}));blade.position.set(1,1.5,0.3);blade.rotation.z=-0.2;blade.castShadow=true;pg.add(blade);
-        const psh=new THREE.Mesh(new THREE.BoxGeometry(1,1.5,0.2),new THREE.MeshStandardMaterial({color:0xff5555,emissive:0x330000}));psh.position.set(-1,1.2,0);psh.rotation.y=0.2;pg.add(psh);
-        scene.add(pg);
-
-        function memeText(pos,text){
-            try{
-            const p=pos.clone?pos.clone():new THREE.Vector3(pos.x||0,pos.y||0,pos.z||0);
-            const d=document.createElement('div');d.textContent=text;
-            d.style.cssText='color:yellow;font-size:30px;font-weight:bold;text-shadow:2px 2px 0 red;pointer-events:none;';
-            const l=new CSS2DObject(d);l.position.copy(p);l.position.y+=2;scene.add(l);
-            let age=0;const tick=()=>{age+=0.016;d.style.opacity=Math.max(0,1-age);l.position.y+=0.03;if(age<1)requestAnimationFrame(tick);else{try{scene.remove(l);}catch(e){}}};tick();
-            }catch(e){}
-        }
-
-        class Ally{
-            constructor(id,color,emoji){
-                this.group=new THREE.Group();this.dead=false;
-                const b=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,1.8),new THREE.MeshStandardMaterial({color,emissive:0x222222}));b.position.y=0.9;b.castShadow=true;this.group.add(b);
-                const h=new THREE.Mesh(new THREE.SphereGeometry(0.6),new THREE.MeshStandardMaterial({color:0xffccaa}));h.position.y=1.9;this.group.add(h);
-                const ed2=document.createElement('div');ed2.textContent=emoji;ed2.style.cssText='font-size:24px;filter:drop-shadow(0 0 5px cyan)';
-                const emojiLabel=new CSS2DObject(ed2);emojiLabel.position.set(0,2.8,0);this.group.add(emojiLabel);
-                const hm=new THREE.Mesh(new THREE.ConeGeometry(0.7,0.6,6),new THREE.MeshStandardMaterial({color:0xcccccc,emissive:0x333333}));hm.position.y=2.2;this.group.add(hm);
-                this.weapon=new THREE.Mesh(new THREE.BoxGeometry(0.2,1.2,0.2),new THREE.MeshStandardMaterial({color:0xcccccc}));this.weapon.position.set(0.7,1.2,0.3);this.weapon.rotation.z=-0.1;this.group.add(this.weapon);
-                const c=document.createElement('div');c.style.cssText='width:40px;height:6px;background:#333;border:1px solid #666';
-                this.hpF=document.createElement('div');this.hpF.style.cssText='width:100%;height:100%;background:#0f0';c.appendChild(this.hpF);
-                const lb=new CSS2DObject(c);lb.position.set(0,2.5,0);this.group.add(lb);
-                this.id=id;this.hp=80;this.maxHp=80;this.spd=4;this.atkPow=15;this.atkCd=0;this.atkR=3;this.state='follow';this.target=null;
-            }
-            update(dt,pp){
-                if(this.dead)return;
-                const pct=this.hp/this.maxHp;this.hpF.style.width=(pct*100)+'%';
-                this.hpF.style.background=pct>.6?'#0f0':pct>.3?'#ff0':'#f00';
-                if(this.atkCd>0)this.atkCd-=dt;
-                if(this.state==='follow'){
-                    const dist=pp.distanceTo(this.group.position);
-                    if(dist>3){const dir=new THREE.Vector3().subVectors(pp,this.group.position).normalize();this.group.position.add(dir.multiplyScalar(this.spd*dt));}
-                    this.group.lookAt(new THREE.Vector3(pp.x,this.group.position.y,pp.z));
-                }else if(this.state==='attack'&&this.target&&!this.target.dead&&this.target.hp>0){
-                    const tp=this.target.mesh.position;const dist=tp.distanceTo(this.group.position);
-                    if(dist>this.atkR){const dir=new THREE.Vector3().subVectors(tp,this.group.position).normalize();this.group.position.add(dir.multiplyScalar(this.spd*1.5*dt));}
-                    if(dist<this.atkR&&this.atkCd<=0){this.atkCd=1;this.target.takeDamage(this.atkPow);this.weapon.rotation.z=-1;setTimeout(()=>this.weapon.rotation.z=-0.1,150);memeText(tp,'💥 YEET!');}
-                    this.group.lookAt(new THREE.Vector3(tp.x,this.group.position.y,tp.z));
-                }else if(this.state==='attack'){this.state='follow';this.target=null;}
-            }
-            hit(amt){this.hp-=amt;if(this.hp<=0)memeText(this.group.position,'F in chat 💀');return this.hp<=0;}
-            die(){this.dead=true;scene.remove(this.group);}
-        }
-
-        class Enemy{
-            constructor(type,waveNum){
-                let col=0xff44aa,hp=40+waveNum*5,spd=2.5+waveNum*0.15,sz=1,emoji='😈',dmg=12+waveNum*2;
-                if(type==='fast'){col=0xffaa00;hp=25+waveNum*3;spd=4+waveNum*0.2;sz=0.7;emoji='👾';dmg=10;}
-                else if(type==='tank'){col=0xff3333;hp=70+waveNum*8;spd=1.5;sz=1.2;emoji='🤡';dmg=20+waveNum;}
-                const mat=new THREE.MeshStandardMaterial({color:col,emissive:0x220000});
-                this.mesh=new THREE.Mesh(new THREE.ConeGeometry(sz,sz*2,6),mat);this.mesh.castShadow=true;
-                const ed3=document.createElement('div');ed3.textContent=emoji;ed3.style.cssText='font-size:24px;filter:drop-shadow(0 0 5px red)';
-                const emojiLbl=new CSS2DObject(ed3);emojiLbl.position.set(0,sz*2+0.5,0);this.mesh.add(emojiLbl);
-                // Eyes
-                [[-.25,.6,sz],[.25,.6,sz]].forEach(([x,y,z])=>{
-                    const e=new THREE.Mesh(new THREE.SphereGeometry(0.15),new THREE.MeshBasicMaterial({color:0xffffff}));e.position.set(x,y,z);this.mesh.add(e);
-                    const p=new THREE.Mesh(new THREE.SphereGeometry(0.07),new THREE.MeshBasicMaterial({color:0}));p.position.set(x,y,z+0.1);this.mesh.add(p);
-                });
-                const a=Math.random()*Math.PI*2;this.mesh.position.set(Math.cos(a)*25,sz,Math.sin(a)*25);scene.add(this.mesh);
-                this.hp=hp;this.maxHp=hp;this.speed=spd;this.origSpeed=spd;this.type=type;this.damage=dmg;this.dead=false;
-                const c=document.createElement('div');c.style.cssText='width:40px;height:5px;background:#333';
-                this.hpF=document.createElement('div');this.hpF.style.cssText='width:100%;height:100%;background:#f00';c.appendChild(this.hpF);
-                const hpLbl=new CSS2DObject(c);hpLbl.position.set(0,sz*2+0.5,0);this.mesh.add(hpLbl);
-            }
-            update(pp,dt){if(this.dead)return;const dir=new THREE.Vector3().subVectors(pp,this.mesh.position).normalize();this.mesh.position.add(dir.multiplyScalar(this.speed*dt));this.mesh.lookAt(pp);}
-            takeDamage(amt){this.hp=Math.max(0,this.hp-amt);this.hpF.style.width=(this.hp/this.maxHp*100)+'%';this.mesh.material.emissive.setHex(0x442200);setTimeout(()=>{if(!this.dead)this.mesh.material.emissive.setHex(0x220000);},100);return this.hp<=0;}
-            die(){this.dead=true;scene.remove(this.mesh);}
-        }
-
-        let health=100,maxHealth=100,score=0,wave=1,enemies=[],allies=[];
-        let waveCount=8+wave*3,spawned=0,killed=0,viralMeter=0,viralActive=false,viralTimer=0;
-        const MEMES=['YEET!','POG!','RIZZ','SKIBIDI','BASED','SIGMA','GYATT','NO CAP','BUSSIN','W'];
-        const allyEmojis=['😎','🤘','🦍','🐐','👑'];
-
-        for(let i=0;i<3;i++){const a=new Ally(i,[0x00ffaa,0xaa44ff,0xffaa44][i],allyEmojis[i]);a.group.position.set(i*2-2,0,2);scene.add(a.group);allies.push(a);}
-
-        const ks={w:false,a:false,s:false,d:false};let atkDown=false;
-        document.addEventListener('keydown',e=>{
-            if(e.code==='KeyW')ks.w=true;if(e.code==='KeyS')ks.s=true;if(e.code==='KeyA')ks.a=true;if(e.code==='KeyD')ks.d=true;
-            if(e.code==='KeyV'){e.preventDefault();if(viralMeter>=100)activateViral();}
-            if(e.code==='Digit1')cmdAllies('attack');if(e.code==='Digit2')cmdAllies('follow');if(e.code==='Digit3')cmdAllies('hold');
-            if(e.code==='Escape')controls.unlock();if(e.code==='KeyR')location.reload();
+        let isLocked = false;
+        renderer.domElement.addEventListener('click', () => {
+            if (!isLocked) renderer.domElement.requestPointerLock();
         });
-        document.addEventListener('keyup',e=>{if(e.code==='KeyW')ks.w=false;if(e.code==='KeyS')ks.s=false;if(e.code==='KeyA')ks.a=false;if(e.code==='KeyD')ks.d=false;});
-        document.addEventListener('mousedown',e=>{if(e.button===0)atkDown=true;});
-        document.addEventListener('mouseup',e=>{if(e.button===0)atkDown=false;});
-        renderer.domElement.addEventListener('click',()=>controls.lock());
+        document.addEventListener('pointerlockchange', () => {
+            isLocked = !!document.pointerLockElement;
+        });
 
-        function cmdAllies(cmd){
-            allies.forEach(a=>{if(a.dead)return;
-                if(cmd==='attack'){let best=null,bd=Infinity;enemies.forEach(e=>{if(e.dead)return;const d=e.mesh.position.distanceTo(a.group.position);if(d<bd){bd=d;best=e;}});if(best){a.state='attack';a.target=best;}else{a.state='follow';a.target=null;}}
-                else{a.state=cmd;a.target=null;}
+        // UI elements
+        const healthSpan = document.getElementById('health');
+        const healthFill = document.getElementById('health-fill');
+        const scoreSpan = document.getElementById('score');
+        const allyCountSpan = document.getElementById('ally-count');
+        const waveSpan = document.getElementById('wave');
+        const viralFill = document.getElementById('viral-fill');
+        const viralButton = document.getElementById('viral-button');
+
+        // --- Particles for cool effects ---
+        const particleGeom = new THREE.BufferGeometry();
+        const particleCount = 500;
+        const positions = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+            positions[i*3] = (Math.random() - 0.5) * 100;
+            positions[i*3+1] = (Math.random() - 0.5) * 50;
+            positions[i*3+2] = (Math.random() - 0.5) * 100;
+        }
+        particleGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMat = new THREE.PointsMaterial({ color: 0x88aaff, size: 0.2, transparent: true, blending: THREE.AdditiveBlending });
+        const particles = new THREE.Points(particleGeom, particleMat);
+        scene.add(particles);
+
+        // --- Lighting ---
+        const ambient = new THREE.AmbientLight(0x404080);
+        scene.add(ambient);
+
+        const pointLight1 = new THREE.PointLight(0xff00ff, 2, 50);
+        pointLight1.position.set(15, 20, 15);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0x00ffff, 2, 50);
+        pointLight2.position.set(-15, 20, -15);
+        scene.add(pointLight2);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight.position.set(5, 30, 10);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 60;
+        dirLight.shadow.camera.left = -30;
+        dirLight.shadow.camera.right = 30;
+        dirLight.shadow.camera.top = 30;
+        dirLight.shadow.camera.bottom = -30;
+        scene.add(dirLight);
+
+        // --- Ground with neon grid and glow ---
+        const gridHelper = new THREE.GridHelper(80, 30, 0xff00ff, 0x00ffff);
+        gridHelper.position.y = -0.1;
+        scene.add(gridHelper);
+
+        // Add glowing orbs on ground
+        const orbMat = new THREE.MeshStandardMaterial({ color: 0xaa44ff, emissive: 0x5500aa });
+        for (let i=0; i<20; i++) {
+            const angle = (i/20)*Math.PI*2;
+            const radius = 25;
+            const x = Math.cos(angle)*radius;
+            const z = Math.sin(angle)*radius;
+            const orb = new THREE.Mesh(new THREE.SphereGeometry(0.4), orbMat);
+            orb.position.set(x, 0.2, z);
+            orb.castShadow = true;
+            orb.receiveShadow = true;
+            scene.add(orb);
+        }
+
+        // Colorful pillars
+        const pillarMat = new THREE.MeshStandardMaterial({ color: 0xaa44ff, emissive: 0x330066 });
+        for (let i=0; i<12; i++) {
+            const angle = (i/12)*Math.PI*2;
+            const x = Math.cos(angle)*22;
+            const z = Math.sin(angle)*22;
+            const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 5), pillarMat);
+            pillar.position.set(x, 2.5, z);
+            pillar.castShadow = true;
+            pillar.receiveShadow = true;
+            scene.add(pillar);
+
+            // Glow at top
+            const glow = new THREE.Mesh(new THREE.SphereGeometry(0.6), new THREE.MeshBasicMaterial({ color: 0xff00ff }));
+            glow.position.set(x, 5.3, z);
+            scene.add(glow);
+        }
+
+        // --- Player ---
+        const playerGroup = new THREE.Group();
+
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x3399ff, emissive: 0x113366 });
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 2.2), bodyMat);
+        body.position.y = 1.1;
+        body.castShadow = true;
+        playerGroup.add(body);
+
+        const headMat = new THREE.MeshStandardMaterial({ color: 0xffccaa });
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.8), headMat);
+        head.position.y = 2.3;
+        head.castShadow = true;
+        playerGroup.add(head);
+
+        const helmetMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0x442200 });
+        const helmet = new THREE.Mesh(new THREE.ConeGeometry(0.9, 0.8, 8), helmetMat);
+        helmet.position.y = 2.7;
+        helmet.castShadow = true;
+        playerGroup.add(helmet);
+
+        const crownDiv = document.createElement('div');
+        crownDiv.textContent = '👑';
+        crownDiv.style.fontSize = '40px';
+        crownDiv.style.filter = 'drop-shadow(0 0 20px gold)';
+        const crownLabel = new CSS2DObject(crownDiv);
+        crownLabel.position.set(0, 3.8, 0);
+        playerGroup.add(crownLabel);
+
+        const swordMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x666666 });
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.0, 0.2), swordMat);
+        blade.position.set(1, 1.6, 0.3);
+        blade.rotation.z = -0.2;
+        blade.castShadow = true;
+        playerGroup.add(blade);
+
+        const shieldMat = new THREE.MeshStandardMaterial({ color: 0xff5555, emissive: 0x330000 });
+        const shield = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.6, 0.2), shieldMat);
+        shield.position.set(-1, 1.3, 0);
+        shield.rotation.y = 0.2;
+        shield.castShadow = true;
+        playerGroup.add(shield);
+
+        scene.add(playerGroup);
+
+        // --- Ally class with glow ---
+        class Ally {
+            constructor(id, color, emoji) {
+                this.group = new THREE.Group();
+                this.dead = false;
+                const bMat = new THREE.MeshStandardMaterial({ color: color, emissive: 0x222222 });
+                const b = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 2.0), bMat);
+                b.position.y = 1.0;
+                b.castShadow = true;
+                this.group.add(b);
+
+                const hMat = new THREE.MeshStandardMaterial({ color: 0xffccaa });
+                const h = new THREE.Mesh(new THREE.SphereGeometry(0.6), hMat);
+                h.position.y = 2.1;
+                h.castShadow = true;
+                this.group.add(h);
+
+                const emojiDiv = document.createElement('div');
+                emojiDiv.textContent = emoji;
+                emojiDiv.style.fontSize = '28px';
+                emojiDiv.style.filter = 'drop-shadow(0 0 10px cyan)';
+                this.emojiLabel = new CSS2DObject(emojiDiv);
+                this.emojiLabel.position.set(0, 3.0, 0);
+                this.group.add(this.emojiLabel);
+
+                const hlMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, emissive: 0x333333 });
+                const hl = new THREE.Mesh(new THREE.ConeGeometry(0.7, 0.6, 6), hlMat);
+                hl.position.y = 2.4;
+                hl.castShadow = true;
+                this.group.add(hl);
+
+                const wMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+                this.weapon = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.4, 0.2), wMat);
+                this.weapon.position.set(0.7, 1.4, 0.3);
+                this.weapon.rotation.z = -0.1;
+                this.weapon.castShadow = true;
+                this.group.add(this.weapon);
+
+                const container = document.createElement('div');
+                container.style.width = '45px';
+                container.style.height = '7px';
+                container.style.backgroundColor = '#222';
+                container.style.border = '1px solid cyan';
+                container.style.borderRadius = '4px';
+                this.healthFill = document.createElement('div');
+                this.healthFill.style.width = '100%';
+                this.healthFill.style.height = '100%';
+                this.healthFill.style.backgroundColor = '#0f0';
+                container.appendChild(this.healthFill);
+                const hpLabel = new CSS2DObject(container);
+                hpLabel.position.set(0, 2.8, 0);
+                this.group.add(hpLabel);
+
+                this.id = id;
+                this.health = 80;
+                this.maxHealth = 80;
+                this.speed = 4;
+                this.attackPower = 15;
+                this.attackCooldown = 0;
+                this.attackRange = 3;
+                this.state = 'follow';
+                this.targetEnemy = null;
+            }
+
+            update(dt, playerPos) {
+                if (this.dead) return;
+                const percent = this.health / this.maxHealth;
+                this.healthFill.style.width = (percent * 100) + '%';
+                if (percent > 0.6) this.healthFill.style.backgroundColor = '#0f0';
+                else if (percent > 0.3) this.healthFill.style.backgroundColor = '#ff0';
+                else this.healthFill.style.backgroundColor = '#f00';
+
+                if (this.attackCooldown > 0) this.attackCooldown -= dt;
+
+                if (this.state === 'follow') {
+                    const dist = playerPos.distanceTo(this.group.position);
+                    if (dist > 3) {
+                        const dir = new THREE.Vector3().subVectors(playerPos, this.group.position).normalize();
+                        this.group.position.add(dir.multiplyScalar(this.speed * dt));
+                    }
+                    this.group.lookAt(new THREE.Vector3(playerPos.x, this.group.position.y, playerPos.z));
+                } else if (this.state === 'attack' && this.targetEnemy && !this.targetEnemy.dead && this.targetEnemy.health > 0) {
+                    const targetPos = this.targetEnemy.mesh.position;
+                    const dist = targetPos.distanceTo(this.group.position);
+                    if (dist > this.attackRange) {
+                        const dir = new THREE.Vector3().subVectors(targetPos, this.group.position).normalize();
+                        this.group.position.add(dir.multiplyScalar(this.speed * 1.5 * dt));
+                    }
+                    if (dist < this.attackRange && this.attackCooldown <= 0) {
+                        this.attackCooldown = 1.0;
+                        this.targetEnemy.takeDamage(this.attackPower);
+                        this.weapon.rotation.z = -1.0;
+                        setTimeout(() => { this.weapon.rotation.z = -0.1; }, 150);
+                        spawnMemeText(targetPos, '💥 YEET!', 0xffaa00);
+                        createExplosion(targetPos, 0x00ffff);
+                    }
+                    this.group.lookAt(new THREE.Vector3(targetPos.x, this.group.position.y, targetPos.z));
+                } else if (this.state === 'attack') {
+                    this.state = 'follow';
+                    this.targetEnemy = null;
+                }
+            }
+
+            takeDamage(amount) {
+                this.health -= amount;
+                if (this.health <= 0) {
+                    spawnMemeText(this.group.position, '💀 F', 0xff5555);
+                    createExplosion(this.group.position, 0xff0000);
+                }
+                return this.health <= 0;
+            }
+
+            die() {
+                this.dead = true;
+                scene.remove(this.group);
+            }
+        }
+
+        // --- Enemy class with neon colors ---
+        class Enemy {
+            constructor(type, waveNum) {
+                let color, hp, spd, size, emoji, dmg;
+                if (type === 'fast') {
+                    color = 0xffaa00; hp = 25 + waveNum * 3; spd = 4.5 + waveNum * 0.2; size = 0.7; emoji = '👾'; dmg = 10;
+                } else if (type === 'tank') {
+                    color = 0xff3333; hp = 70 + waveNum * 8; spd = 1.5; size = 1.3; emoji = '🤡'; dmg = 20 + waveNum;
+                } else {
+                    color = 0xff44aa; hp = 40 + waveNum * 5; spd = 2.5 + waveNum * 0.15; size = 1.0; emoji = '😈'; dmg = 12 + waveNum * 2;
+                }
+
+                const mat = new THREE.MeshStandardMaterial({ color: color, emissive: 0x220000 });
+                this.mesh = new THREE.Mesh(new THREE.ConeGeometry(size, size*2.2, 8), mat);
+                this.mesh.castShadow = true;
+                this.mesh.receiveShadow = true;
+
+                const emojiDiv = document.createElement('div');
+                emojiDiv.textContent = emoji;
+                emojiDiv.style.fontSize = '28px';
+                emojiDiv.style.filter = 'drop-shadow(0 0 10px red)';
+                const emojiLbl = new CSS2DObject(emojiDiv);
+                emojiLbl.position.set(0, size*2 + 0.6, 0);
+                this.mesh.add(emojiLbl);
+
+                // Eyes
+                const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                [[-.25,.6,size],[.25,.6,size]].forEach(([x,y,z]) => {
+                    const e = new THREE.Mesh(new THREE.SphereGeometry(0.15), eyeMat);
+                    e.position.set(x, y, z);
+                    this.mesh.add(e);
+                    const p = new THREE.Mesh(new THREE.SphereGeometry(0.07), pupilMat);
+                    p.position.set(x, y, z + 0.1);
+                    this.mesh.add(p);
+                });
+
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 25 + Math.random() * 5;
+                this.mesh.position.set(Math.cos(angle)*radius, size, Math.sin(angle)*radius);
+                scene.add(this.mesh);
+
+                this.health = hp;
+                this.maxHealth = hp;
+                this.speed = spd;
+                this.origSpeed = spd;
+                this.type = type;
+                this.damage = dmg;
+                this.dead = false;
+
+                const container = document.createElement('div');
+                container.style.width = '45px';
+                container.style.height = '6px';
+                container.style.backgroundColor = '#222';
+                this.healthFill = document.createElement('div');
+                this.healthFill.style.width = '100%';
+                this.healthFill.style.height = '100%';
+                this.healthFill.style.backgroundColor = '#f00';
+                container.appendChild(this.healthFill);
+                const hpLbl = new CSS2DObject(container);
+                hpLbl.position.set(0, size*2 + 0.6, 0);
+                this.mesh.add(hpLbl);
+            }
+
+            update(playerPos, dt) {
+                if (this.dead) return;
+                const dir = new THREE.Vector3().subVectors(playerPos, this.mesh.position).normalize();
+                this.mesh.position.add(dir.multiplyScalar(this.speed * dt));
+                this.mesh.lookAt(playerPos);
+            }
+
+            takeDamage(amount) {
+                this.health = Math.max(0, this.health - amount);
+                this.healthFill.style.width = (this.health / this.maxHealth * 100) + '%';
+                this.mesh.material.emissive.setHex(0x442200);
+                setTimeout(() => { if (!this.dead) this.mesh.material.emissive.setHex(0x220000); }, 100);
+                return this.health <= 0;
+            }
+
+            die() {
+                this.dead = true;
+                scene.remove(this.mesh);
+            }
+        }
+
+        // --- Particle explosion effect ---
+        function createExplosion(position, color) {
+            const count = 15;
+            for (let i = 0; i < count; i++) {
+                const particle = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.1, 4),
+                    new THREE.MeshBasicMaterial({ color: color, transparent: true })
+                );
+                particle.position.copy(position);
+                const vel = new THREE.Vector3(
+                    (Math.random()-0.5)*2,
+                    Math.random()*2,
+                    (Math.random()-0.5)*2
+                );
+                let life = 1.0;
+                scene.add(particle);
+                const interval = setInterval(() => {
+                    particle.position.add(vel);
+                    vel.y -= 0.1;
+                    life -= 0.05;
+                    particle.material.opacity = life;
+                    if (life <= 0) {
+                        scene.remove(particle);
+                        clearInterval(interval);
+                    }
+                }, 30);
+            }
+        }
+
+        // --- Floating meme text (CSS2D) ---
+        function spawnMemeText(position, text, color = 0xffff00) {
+            try {
+                const pos = position.clone ? position.clone() : new THREE.Vector3(position.x||0, position.y||0, position.z||0);
+                const div = document.createElement('div');
+                div.textContent = text;
+                div.style.color = 'white';
+                div.style.fontSize = '40px';
+                div.style.fontWeight = '900';
+                div.style.textShadow = `0 0 20px #${color.toString(16).padStart(6,'0')}`;
+                div.style.pointerEvents = 'none';
+                const label = new CSS2DObject(div);
+                label.position.copy(pos);
+                label.position.y += 2;
+                scene.add(label);
+                let age = 0;
+                const tick = () => {
+                    age += 0.016;
+                    div.style.opacity = Math.max(0, 1 - age);
+                    label.position.y += 0.03;
+                    if (age < 1) requestAnimationFrame(tick);
+                    else { try { scene.remove(label); } catch(e) {} }
+                };
+                tick();
+            } catch(e) {}
+        }
+
+        // --- Game state ---
+        let health = 100;
+        let maxHealth = 100;
+        let score = 0;
+        let wave = 1;
+        let enemies = [];
+        let allies = [];
+        let waveCount = 8 + wave * 3;
+        let spawned = 0;
+        let killed = 0;
+        let viralMeter = 0;
+        const MAX_VIRAL = 100;
+        let viralActive = false;
+        let viralTimer = 0;
+
+        const MEMES = ['YEET!', 'POG!', 'RIZZ', 'SKIBIDI', 'BASED', 'SIGMA', 'GYATT', 'NO CAP', 'BUSSIN', 'W'];
+        const allyEmojis = ['😎', '🤘', '🦍', '🐐', '👑'];
+
+        for (let i = 0; i < 3; i++) {
+            const ally = new Ally(i, i===0 ? 0x00ffaa : i===1 ? 0xaa44ff : 0xffaa44, allyEmojis[i]);
+            ally.group.position.set(i*2 - 2, 0, 2);
+            scene.add(ally.group);
+            allies.push(ally);
+        }
+        allyCountSpan.textContent = allies.length;
+
+        // Input
+        const ks = { w:false, a:false, s:false, d:false };
+        let atkDown = false;
+        document.addEventListener('keydown', e => {
+            if (e.code==='KeyW') ks.w = true;
+            if (e.code==='KeyS') ks.s = true;
+            if (e.code==='KeyA') ks.a = true;
+            if (e.code==='KeyD') ks.d = true;
+            if (e.code==='KeyV') { e.preventDefault(); if (viralMeter >= MAX_VIRAL) activateViralMode(); }
+            if (e.code==='Digit1') commandAllies('attack');
+            if (e.code==='Digit2') commandAllies('follow');
+            if (e.code==='Digit3') commandAllies('hold');
+            if (e.code==='Escape') document.exitPointerLock();
+            if (e.code==='KeyR') location.reload();
+        });
+        document.addEventListener('keyup', e => {
+            if (e.code==='KeyW') ks.w = false;
+            if (e.code==='KeyS') ks.s = false;
+            if (e.code==='KeyA') ks.a = false;
+            if (e.code==='KeyD') ks.d = false;
+        });
+        document.addEventListener('mousedown', e => { if (e.button===0) atkDown = true; });
+        document.addEventListener('mouseup', e => { if (e.button===0) atkDown = false; });
+
+        function commandAllies(cmd) {
+            allies.forEach(ally => {
+                if (ally.dead) return;
+                if (cmd === 'attack') {
+                    let closest = null, minDist = Infinity;
+                    enemies.forEach(enemy => {
+                        if (enemy.dead || enemy.health <= 0) return;
+                        const dist = enemy.mesh.position.distanceTo(ally.group.position);
+                        if (dist < minDist) { minDist = dist; closest = enemy; }
+                    });
+                    if (closest) { ally.state = 'attack'; ally.targetEnemy = closest; }
+                    else { ally.state = 'follow'; ally.targetEnemy = null; }
+                } else if (cmd === 'follow') {
+                    ally.state = 'follow'; ally.targetEnemy = null;
+                } else if (cmd === 'hold') {
+                    ally.state = 'hold'; ally.targetEnemy = null;
+                }
             });
         }
 
-        function activateViral(){
-            viralActive=true;viralTimer=5;viralMeter=0;viralFill.style.width='0%';
-            viralButton.style.background='cyan';viralButton.innerHTML='💥 VIRAL<br>ACTIVE';
-            enemies.forEach(e=>{if(!e.dead){e.speed*=0.3;e.mesh.material.emissive.setHex(0xff00ff);}});
-            allies.forEach(a=>{if(!a.dead)a.hp=Math.min(a.maxHp,a.hp+20);});
-            health=Math.min(maxHealth,health+20);
-            scene.background.setHex(0xffffff);setTimeout(()=>scene.background.setHex(0x1a1a2e),150);
-            memeText(pg.position,'🚀 VIRAL MODE!');
+        function activateViralMode() {
+            viralActive = true;
+            viralTimer = 5;
+            viralMeter = 0;
+            viralFill.style.width = '0%';
+            viralButton.innerHTML = '💥 ACTIVE!';
+            viralButton.classList.add('active');
+
+            enemies.forEach(enemy => {
+                if (!enemy.dead) {
+                    enemy.speed *= 0.3;
+                    enemy.mesh.material.emissive.setHex(0xff00ff);
+                }
+            });
+
+            allies.forEach(ally => {
+                if (!ally.dead) ally.health = Math.min(ally.maxHealth, ally.health + 30);
+            });
+            health = Math.min(maxHealth, health + 20);
+
+            spawnMemeText(playerGroup.position, '🚀 VIRAL MODE!', 0xff00ff);
+            createExplosion(playerGroup.position, 0xffff00);
+            scene.background.setHex(0xffffff);
+            setTimeout(() => scene.background.setHex(0x0a0a1a), 150);
         }
 
-        function doAttack(){
-            const pp=pg.position.clone(),fwd=new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
-            for(let i=enemies.length-1;i>=0;i--){
-                const e=enemies[i];if(e.dead)continue;
-                const toE=new THREE.Vector3().subVectors(e.mesh.position,pp);
-                if(toE.length()<4.5&&fwd.dot(toE.normalize())>0.2){
-                    const dmg=viralActive?50:25;
-                    if(e.takeDamage(dmg)){
-                        e.die();enemies.splice(i,1);killed++;score+=20;
-                        viralMeter=Math.min(100,viralMeter+10);viralFill.style.width=viralMeter+'%';
-                        if(viralMeter>=100){viralButton.style.background='gold';viralButton.innerHTML='💥 PRESS V<br>READY';}
-                        memeText(e.mesh.position,MEMES[Math.floor(Math.random()*MEMES.length)]);
+        function playerAttack() {
+            const pp = playerGroup.position.clone();
+            const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
+                if (enemy.dead) continue;
+                const toE = new THREE.Vector3().subVectors(enemy.mesh.position, pp);
+                if (toE.length() < 4.5 && fwd.dot(toE.normalize()) > 0.2) {
+                    const dmg = viralActive ? 50 : 25;
+                    if (enemy.takeDamage(dmg)) {
+                        enemy.die();
+                        enemies.splice(i, 1);
+                        killed++;
+                        score += 20;
+
+                        viralMeter = Math.min(MAX_VIRAL, viralMeter + 10);
+                        viralFill.style.width = (viralMeter / MAX_VIRAL * 100) + '%';
+                        if (viralMeter >= MAX_VIRAL) {
+                            viralButton.innerHTML = '💥 PRESS V';
+                        }
+
+                        const meme = MEMES[Math.floor(Math.random() * MEMES.length)];
+                        spawnMemeText(enemy.mesh.position, meme, 0xffaa00);
+                        createExplosion(enemy.mesh.position, 0xffaa00);
                     }
                     break;
                 }
             }
-            blade.rotation.z=-1.5;setTimeout(()=>blade.rotation.z=-0.2,100);
+
+            blade.rotation.z = -1.5;
+            setTimeout(() => blade.rotation.z = -0.2, 100);
         }
 
-        function spawnEnemy(){if(spawned>=waveCount)return;const r=Math.random();enemies.push(new Enemy(r<.2?'fast':r<.4?'tank':'normal',wave));spawned++;}
-        function startWave(){spawned=0;killed=0;waveCount=8+wave*3;for(let i=0;i<5;i++)spawnEnemy();}
+        function spawnEnemy() {
+            if (spawned >= waveCount) return;
+            const r = Math.random();
+            const type = r < 0.2 ? 'fast' : r < 0.4 ? 'tank' : 'normal';
+            enemies.push(new Enemy(type, wave));
+            spawned++;
+        }
+
+        function startWave() {
+            spawned = 0;
+            killed = 0;
+            waveCount = 8 + wave * 3;
+            for (let i = 0; i < 5; i++) spawnEnemy();
+        }
+
         startWave();
 
-        let lt=performance.now()/1000,spT=0;
-        function loop(){
-            const now=performance.now()/1000,dt=Math.min(0.1,now-lt);lt=now;
-            if(!controls.isLocked){renderer.render(scene,camera);labelRenderer.render(scene,camera);requestAnimationFrame(loop);return;}
+        // --- Game loop ---
+        let lastTime = performance.now() / 1000;
+        let spawnTimer = 0;
 
-            if(ks.w)controls.moveForward(8*dt);if(ks.s)controls.moveForward(-8*dt);
-            if(ks.a)controls.moveRight(-8*dt);if(ks.d)controls.moveRight(8*dt);
+        function gameLoop() {
+            const time = performance.now() / 1000;
+            const dt = Math.min(0.1, time - lastTime);
+            lastTime = time;
 
-            pg.position.copy(controls.getObject().position);pg.position.y=0;pg.rotation.y=camera.rotation.y;
-            if(atkDown){doAttack();atkDown=false;}
+            if (!isLocked) {
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            // Movement — world-space WASD for third-person camera
+            const moveDir = new THREE.Vector3();
+            if (ks.w) moveDir.z -= 1;
+            if (ks.s) moveDir.z += 1;
+            if (ks.a) moveDir.x -= 1;
+            if (ks.d) moveDir.x += 1;
+            if (moveDir.lengthSq() > 0) {
+                moveDir.normalize();
+                playerGroup.position.add(moveDir.multiplyScalar(9 * dt));
+            }
+
+            if (atkDown) { playerAttack(); atkDown = false; }
 
             // Viral timer
-            if(viralActive){viralTimer-=dt;if(viralTimer<=0){viralActive=false;enemies.forEach(e=>{if(!e.dead){e.speed=e.origSpeed;e.mesh.material.emissive.setHex(0x220000);}});viralButton.style.background='rgba(0,0,0,0.8)';viralButton.innerHTML='💥 VIRAL<br>READY';}}
+            if (viralActive) {
+                viralTimer -= dt;
+                if (viralTimer <= 0) {
+                    viralActive = false;
+                    enemies.forEach(enemy => {
+                        if (!enemy.dead) {
+                            enemy.speed = enemy.origSpeed;
+                            enemy.mesh.material.emissive.setHex(0x220000);
+                        }
+                    });
+                    viralButton.innerHTML = '💥 VIRAL<br>READY';
+                    viralButton.classList.remove('active');
+                }
+            }
 
-            const pp=pg.position.clone();
+            const pp = playerGroup.position.clone();
 
             // Allies
-            allies.forEach(a=>{if(a.dead)return;a.update(dt,pp);
-                enemies.forEach(e=>{if(e.dead)return;if(e.mesh.position.distanceTo(a.group.position)<2&&Math.random()<dt*1.2){
-                    if(a.hit(e.damage*0.3)){a.die();allies=allies.filter(x=>x!==a);memeText(a.group.position,'💀 RIP');}
-                }});
+            allies.forEach(ally => {
+                if (ally.dead) return;
+                ally.update(dt, pp);
+                enemies.forEach(enemy => {
+                    if (enemy.dead) return;
+                    if (enemy.mesh.position.distanceTo(ally.group.position) < 2 && Math.random() < dt * 1.2) {
+                        if (ally.takeDamage(enemy.damage * 0.3)) {
+                            ally.die();
+                            spawnMemeText(ally.group.position, '💀 RIP', 0xff5555);
+                        }
+                    }
+                });
             });
+            allies = allies.filter(a => !a.dead);
+            allyCountSpan.textContent = allies.length;
 
             // Enemies
-            enemies.forEach(e=>{if(e.dead)return;e.update(pp,dt);
-                if(pp.distanceTo(e.mesh.position)<2&&Math.random()<dt*1.5){
-                    const dmg=viralActive?e.damage*0.1:e.damage*0.4;health-=dmg;
-                    if(health<=0){health=0;controls.unlock();alert(`GAME OVER! Score: ${score}\n#KnightSquad`);location.reload();}
+            enemies.forEach(enemy => {
+                if (enemy.dead) return;
+                enemy.update(pp, dt);
+                if (pp.distanceTo(enemy.mesh.position) < 2 && Math.random() < dt * 1.5) {
+                    const dmg = viralActive ? enemy.damage * 0.1 : enemy.damage * 0.4;
+                    health -= dmg;
+                    if (health <= 0) {
+                        health = 0;
+                        document.exitPointerLock();
+                        alert(`🔥 GAME OVER! Score: ${score}\nShare this score! #KnightSquad`);
+                        location.reload();
+                    }
                 }
             });
 
-            spT+=dt;if(spT>1&&spawned<waveCount){spT=0;spawnEnemy();}
+            // Clean dead enemies
+            enemies = enemies.filter(e => !e.dead);
 
-            // Clean dead enemies from array
-            enemies=enemies.filter(e=>!e.dead);
-            if(killed>=waveCount&&enemies.length===0){
-                wave++;health=Math.min(maxHealth,health+30);
-                if(wave%2===0){const a=new Ally(allies.length,0xffaa44,allyEmojis[allies.length%allyEmojis.length]);a.group.position.copy(pp.clone().add(new THREE.Vector3(2,0,2)));scene.add(a.group);allies.push(a);memeText(a.group.position,'🆕 NEW ALLY!');}
+            // Spawn
+            spawnTimer += dt;
+            if (spawnTimer > 1 && spawned < waveCount) { spawnTimer = 0; spawnEnemy(); }
+
+            // Wave clear
+            if (killed >= waveCount && enemies.length === 0) {
+                wave++;
+                health = Math.min(maxHealth, health + 30);
+                if (wave % 2 === 0) {
+                    const ally = new Ally(allies.length, 0xffaa44, allyEmojis[allies.length % allyEmojis.length]);
+                    ally.group.position.copy(pp.clone().add(new THREE.Vector3(2, 0, 2)));
+                    scene.add(ally.group);
+                    allies.push(ally);
+                    spawnMemeText(ally.group.position, '🆕 NEW ALLY!', 0x00ffaa);
+                }
                 startWave();
             }
 
-            // Camera follow
-            camera.position.set(pp.x,15,pp.z+20);camera.lookAt(pp);
-            pl1.position.x=Math.sin(now)*10;pl1.position.z=Math.cos(now)*10;
-            pl2.position.x=Math.sin(now+2)*10;pl2.position.z=Math.cos(now+2)*10;
+            // UI
+            healthSpan.textContent = Math.floor(Math.max(0, health));
+            healthFill.style.width = (health / maxHealth * 100) + '%';
+            scoreSpan.textContent = score;
+            waveSpan.textContent = wave;
 
-            healthSpan.textContent=Math.floor(Math.max(0,health));healthFill.style.width=(health/maxHealth*100)+'%';
-            scoreSpan.textContent=score;waveSpan.textContent=wave;allyCountSpan.textContent=allies.filter(a=>!a.dead).length;
+            // Smooth camera follow
+            const targetCamPos = new THREE.Vector3(pp.x, 18, pp.z + 22);
+            camera.position.lerp(targetCamPos, 0.05);
+            camera.lookAt(pp);
 
-            renderer.render(scene,camera);labelRenderer.render(scene,camera);requestAnimationFrame(loop);
+            // Rotate particles slowly
+            particles.rotation.y += 0.001;
+
+            // Animate lights
+            pointLight1.position.x = Math.sin(time) * 12;
+            pointLight1.position.z = Math.cos(time) * 12;
+            pointLight2.position.x = Math.sin(time + 2) * 12;
+            pointLight2.position.z = Math.cos(time + 2) * 12;
+
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+            requestAnimationFrame(gameLoop);
         }
-        loop();
-        addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);labelRenderer.setSize(innerWidth,innerHeight);});
+
+        gameLoop();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
